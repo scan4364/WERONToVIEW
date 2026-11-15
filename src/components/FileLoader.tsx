@@ -78,12 +78,12 @@ export const FileLoader: React.FC<FileLoaderProps> = ({
     setIsLoading(true);
     setErrorMessage(null);
     try {
-      const response = await fetch('./examples/wer-catalogo-v6-regras-swrl.ttl');
+      const response = await fetch('./examples/wer-catalogo-v7-regras-swrl.ttl');
       if (!response.ok) {
         throw new Error(`Não foi possível carregar o exemplo (HTTP ${response.status})`);
       }
       const text = await response.text();
-      const res = await loadOntologyFromText(text, 'wer-catalogo-v6-regras-swrl.ttl');
+      const res = await loadOntologyFromText(text, 'wer-catalogo-v7-regras-swrl.ttl');
       if (res.success) {
         onLoadBaseOntology(res, text);
       } else {

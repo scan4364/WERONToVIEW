@@ -14,7 +14,7 @@ O **WerOntoView** é uma ferramenta web moderna e 100% estática para exploraç�
 ### 1. Entrada de Arquivos e Privacidade Total (RNF-01, RF-01 a RF-04)
 - **100% Client-Side no Navegador:** Nenhum arquivo é transmitido a servidores externos; todo o processamento e parse ocorrem no próprio navegador da pessoa usuária.
 - **Upload via Botão e Drag-and-Drop:** Suporte nativo para Turtle (`.ttl`) e RDF/XML (`.owl`, `.rdf`) com detecção automática do formato pelo conteúdo.
-- **Botão "Carregar exemplo":** Carrega instantaneamente a ontologia do Catálogo WER (`wer-catalogo-v6-regras-swrl.ttl`).
+- **Botão "Carregar exemplo":** Carrega instantaneamente a ontologia do Catálogo WER (`wer-catalogo-v7-regras-swrl.ttl`).
 - **Tratamento Robusto de Erros (RF-02):** Mensagens de erro claras sem congelar ou travar a interface.
 
 ### 2. Visão em Camadas: Simples ↔ Detalhada (RF-20)
@@ -135,7 +135,8 @@ Como a aplicação é 100% estática e roda no navegador:
 WERONTOVIEW/
 ├── public/
 │   └── examples/
-│       └── wer-catalogo-v6-regras-swrl.ttl   # Ontologia de teste do WER 2026
+│       ├── wer-catalogo-v7-regras-swrl.ttl   # Ontologia de teste do WER 2026 (v7 padrão)
+│       └── wer-catalogo-v6-regras-swrl.ttl   # Ontologia do WER (v6 para comparação)
 ├── src/
 │   ├── components/                          # Componentes React
 │   │   ├── ClassTree.tsx                    # Árvore hierárquica recolhível

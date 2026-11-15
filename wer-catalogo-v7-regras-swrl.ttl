@@ -1,0 +1,2462 @@
+@prefix : <http://www.cin.ufpe.br/ontologias/wer-catalogo#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> .
+@prefix swrla: <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#> .
+
+<http://www.cin.ufpe.br/ontologias/wer-catalogo>
+    rdf:type owl:Ontology ;
+    rdfs:comment "Ontologia do catálogo de publicações do WER - versão revisada com dados WER 2026."@pt ;
+    rdfs:label "Ontologia WER Catálogo"@pt .
+
+# ==========================================================
+# CLASSES
+# ==========================================================
+
+:ItemDoEvento rdf:type owl:Class ;
+    rdfs:label "Item do Evento"@pt ;
+    rdfs:comment "Item publicado ou disponibilizado em uma edição do WER, incluindo artigos, prefácio e tutorial."@pt .
+
+:Artigo rdf:type owl:Class ;
+    rdfs:subClassOf :ItemDoEvento ;
+    rdfs:label "Artigo"@pt ;
+    rdfs:comment "Artigo científico identificado por um DOI."@pt .
+
+:ItemEspecial rdf:type owl:Class ;
+    rdfs:subClassOf :ItemDoEvento ;
+    rdfs:label "Item Especial"@pt ;
+    rdfs:comment "Item da edição que não é modelado como Artigo porque não possui DOI no corpus atual, como Prefácio e Tutorial."@pt .
+
+:Autor rdf:type owl:Class ;
+    rdfs:label "Autor"@pt .
+
+:Edicao rdf:type owl:Class ;
+    rdfs:label "Edição"@pt ;
+    rdfs:comment "Uma edição/ano do WER."@pt .
+
+:Instituicao rdf:type owl:Class ;
+    rdfs:label "Instituição"@pt .
+
+:TemaDePesquisa rdf:type owl:Class ;
+    rdfs:label "Tema de Pesquisa"@pt ;
+    rdfs:comment "Técnica, framework ou linha de pesquisa em Engenharia de Requisitos."@pt .
+
+:TecnicaDeModelagem rdf:type owl:Class ;
+    rdfs:subClassOf :TemaDePesquisa ;
+    rdfs:label "Técnica de Modelagem"@pt .
+
+:TecnicaDeElicitacao rdf:type owl:Class ;
+    rdfs:subClassOf :TemaDePesquisa ;
+    rdfs:label "Técnica de Elicitação"@pt .
+
+:TecnicaDeValidacao rdf:type owl:Class ;
+    rdfs:subClassOf :TemaDePesquisa ;
+    rdfs:label "Técnica de Validação"@pt .
+
+:TecnicaDeIA rdf:type owl:Class ;
+    rdfs:subClassOf :TemaDePesquisa ;
+    rdfs:label "Técnica de Inteligência Artificial"@pt .
+
+:TemaDePrivacidadeEEtica rdf:type owl:Class ;
+    rdfs:subClassOf :TemaDePesquisa ;
+    rdfs:label "Tema de Privacidade e Ética"@pt .
+
+:TipoDeContribuicao rdf:type owl:Class ;
+    rdfs:label "Tipo de Contribuição"@pt .
+
+:Idioma rdf:type owl:Class ;
+    rdfs:label "Idioma"@pt .
+
+:Trilha rdf:type owl:Class ;
+    rdfs:label "Trilha"@pt .
+
+[] rdf:type owl:AllDisjointClasses ;
+    owl:members ( :ItemDoEvento :Autor :Edicao :Instituicao :TemaDePesquisa ) .
+
+[] rdf:type owl:AllDisjointClasses ;
+    owl:members ( :Artigo :ItemEspecial ) .
+
+[] rdf:type owl:AllDisjointClasses ;
+    owl:members ( :TecnicaDeModelagem :TecnicaDeElicitacao :TecnicaDeValidacao
+                  :TecnicaDeIA :TemaDePrivacidadeEEtica ) .
+
+# ==========================================================
+# OBJECT PROPERTIES
+# ==========================================================
+
+:temAutor rdf:type owl:ObjectProperty ;
+    rdfs:label "tem autor"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range :Autor .
+
+:autorDe rdf:type owl:ObjectProperty ;
+    owl:inverseOf :temAutor ;
+    rdfs:label "autor de"@pt ;
+    rdfs:domain :Autor ;
+    rdfs:range :ItemDoEvento .
+
+:publicadoEm rdf:type owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "publicado em"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range :Edicao .
+
+:afiliadoA rdf:type owl:ObjectProperty ;
+    rdfs:label "afiliado a"@pt ;
+    rdfs:domain :Autor ;
+    rdfs:range :Instituicao ;
+    rdfs:comment "Não é funcional: um autor pode ter mais de uma instituição."@pt .
+
+:possuiAutor rdf:type owl:ObjectProperty ;
+    owl:inverseOf :afiliadoA ;
+    rdfs:label "possui autor afiliado"@pt ;
+    rdfs:domain :Instituicao ;
+    rdfs:range :Autor ;
+    rdfs:comment "Inversa de afiliadoA; uma instituição pode ter um ou mais autores afiliados."@pt .
+
+:abordaTecnica rdf:type owl:ObjectProperty ;
+    rdfs:label "aborda técnica"@pt ;
+    rdfs:comment "Relaciona um artigo a um ou mais temas/técnicas de pesquisa."@pt ;
+    rdfs:domain :Artigo ;
+    rdfs:range :TemaDePesquisa .
+
+:eAbordadaPor rdf:type owl:ObjectProperty ;
+    owl:inverseOf :abordaTecnica ;
+    rdfs:label "é abordada por"@pt ;
+    rdfs:domain :TemaDePesquisa ;
+    rdfs:range :Artigo .
+
+:dependeDe rdf:type owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:label "depende de"@pt ;
+    rdfs:domain :TemaDePesquisa ;
+    rdfs:range :TemaDePesquisa .
+
+:temTipoDeContribuicao rdf:type owl:ObjectProperty ;
+    rdfs:label "tem tipo de contribuição"@pt ;
+    rdfs:domain :Artigo ;
+    rdfs:range :TipoDeContribuicao ;
+    rdfs:comment "Opcional no corpus atual, pois a planilha fornece a trilha do evento, não uma classificação de contribuição científica."@pt .
+
+:temIdioma rdf:type owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "tem idioma"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range :Idioma .
+
+:pertenceATrilha rdf:type owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "pertence à trilha"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range :Trilha .
+
+:coautorDe rdf:type owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "coautor de"@pt ;
+    rdfs:domain :Autor ;
+    rdfs:range :Autor ;
+    owl:propertyChainAxiom ( :autorDe :temAutor ) .
+
+# ==========================================================
+# DATA PROPERTIES
+# ==========================================================
+
+:titulo rdf:type owl:DatatypeProperty ;
+    rdfs:label "título"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range xsd:string .
+
+:ano rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "ano"@pt ;
+    rdfs:domain :Edicao ;
+    rdfs:range xsd:integer .
+
+:nome rdf:type owl:DatatypeProperty ;
+    rdfs:label "nome"@pt ;
+    rdfs:domain :Autor ;
+    rdfs:range xsd:string .
+
+:nomeInstituicao rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "nome da instituição"@pt ;
+    rdfs:domain :Instituicao ;
+    rdfs:range xsd:string .
+
+:doi rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "DOI"@pt ;
+    rdfs:domain :Artigo ;
+    rdfs:range xsd:string .
+
+:palavraChave rdf:type owl:DatatypeProperty ;
+    rdfs:label "palavra-chave"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Um item pode ter uma ou várias palavras-chave; a propriedade não é funcional."@pt .
+
+:link rdf:type owl:DatatypeProperty ;
+    rdfs:label "link"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range xsd:anyURI .
+
+:linkPagina rdf:type owl:DatatypeProperty ;
+    rdfs:label "link da página"@pt ;
+    rdfs:domain :ItemDoEvento ;
+    rdfs:range xsd:anyURI .
+
+:linkEdicao rdf:type owl:DatatypeProperty ;
+    rdfs:label "link da edição"@pt ;
+    rdfs:domain :Edicao ;
+    rdfs:range xsd:anyURI .
+
+:localidade rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "localidade"@pt ;
+    rdfs:domain :Edicao ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Uma edição tem uma localidade. O mesmo valor pode ser reutilizado em várias edições; não há restrição de unicidade."@pt .
+
+:isbn rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "ISBN"@pt ;
+    rdfs:domain :Edicao ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Identificador editorial da edição. Pode coincidir com o valor de outra edição."@pt .
+
+:issn rdf:type owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "ISSN"@pt ;
+    rdfs:domain :Edicao ;
+    rdfs:range xsd:string ;
+    rdfs:comment "ISSN associado à série dos anais. Pode se repetir entre edições."@pt .
+
+:nomeAlternativo rdf:type owl:DatatypeProperty ;
+    rdfs:label "nome alternativo"@pt ;
+    rdfs:domain :Autor ;
+    rdfs:range xsd:string .
+
+# ==========================================================
+# RESTRIÇÕES
+# ==========================================================
+
+:ItemDoEvento rdfs:subClassOf
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :temAutor ;
+      owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+      owl:onClass :Autor
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :publicadoEm ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :temIdioma ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :pertenceATrilha ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :temAutor ;
+      owl:allValuesFrom :Autor
+    ] .
+
+:Artigo rdfs:subClassOf
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :doi ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :palavraChave ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :abordaTecnica ;
+      owl:allValuesFrom :TemaDePesquisa
+    ] .
+
+:Autor rdfs:subClassOf
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :nome ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :afiliadoA ;
+      owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+      owl:onClass :Instituicao
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :afiliadoA ;
+      owl:allValuesFrom :Instituicao
+    ] .
+
+:Instituicao rdfs:subClassOf
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :nomeInstituicao ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :possuiAutor ;
+      owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+      owl:onClass :Autor
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :possuiAutor ;
+      owl:allValuesFrom :Autor
+    ] .
+
+:Edicao rdfs:subClassOf
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :ano ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :localidade ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :isbn ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ],
+    [ rdf:type owl:Restriction ;
+      owl:onProperty :issn ;
+      owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+:Artigo rdfs:subClassOf [ rdf:type owl:Restriction ;
+    owl:onProperty :doi ;
+    owl:allValuesFrom xsd:string
+] .
+
+:Artigo owl:hasKey ( :doi ) .
+
+# ==========================================================
+# CLASSES DEFINIDAS / REASONING
+# ==========================================================
+
+:ArtigoSobreModelagem rdf:type owl:Class ;
+    rdfs:label "Artigo sobre Modelagem"@pt ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Artigo
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :abordaTecnica ;
+              owl:someValuesFrom :TecnicaDeModelagem ]
+        )
+    ] .
+
+:ArtigoSobreElicitacao rdf:type owl:Class ;
+    rdfs:label "Artigo sobre Elicitação"@pt ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Artigo
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :abordaTecnica ;
+              owl:someValuesFrom :TecnicaDeElicitacao ]
+        )
+    ] .
+
+:ArtigoColaborativo rdf:type owl:Class ;
+    rdfs:label "Artigo Colaborativo"@pt ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Artigo
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :temAutor ;
+              owl:onClass :Autor ;
+              owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ]
+        )
+    ] .
+
+:ArtigoDeAutoriaUnica rdf:type owl:Class ;
+    rdfs:label "Artigo de Autoria Única"@pt ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Artigo
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :temAutor ;
+              owl:onClass :Autor ;
+              owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ]
+        )
+    ] .
+
+:ArtigoMultitematico rdf:type owl:Class ;
+    rdfs:label "Artigo Multitemático"@pt ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Artigo
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :abordaTecnica ;
+              owl:onClass :TemaDePesquisa ;
+              owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ]
+        )
+    ] .
+
+:ArtigoEmPortugues rdf:type owl:Class ;
+    rdfs:label "Artigo em Português"@pt ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Artigo
+            [ rdf:type owl:Restriction ; owl:onProperty :temIdioma ; owl:hasValue :Portugues ]
+        )
+    ] .
+
+:ArtigoEmLinguaEstrangeira rdf:type owl:Class ;
+    rdfs:label "Artigo em Língua Estrangeira"@pt ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            :Artigo
+            [ rdf:type owl:Class ;
+              owl:complementOf [ rdf:type owl:Restriction ; owl:onProperty :temIdioma ; owl:hasValue :Portugues ]
+            ]
+        )
+    ] .
+
+# ==========================================================
+# VOCABULÁRIO CONTROLADO
+# ==========================================================
+
+:Portugues rdf:type owl:NamedIndividual , :Idioma ; rdfs:label "Português"@pt .
+:Ingles rdf:type owl:NamedIndividual , :Idioma ; rdfs:label "Inglês"@pt .
+:Espanhol rdf:type owl:NamedIndividual , :Idioma ; rdfs:label "Espanhol"@pt .
+
+:TrilhaPesquisa rdf:type owl:NamedIndividual , :Trilha ; rdfs:label "Trilha de Pesquisa"@pt .
+:TrilhaFerramentas rdf:type owl:NamedIndividual , :Trilha ; rdfs:label "Trilha de Ferramentas"@pt .
+:TrilhaIndustria rdf:type owl:NamedIndividual , :Trilha ; rdfs:label "Indústria"@pt .
+:TrilhaMestradoDoutorado rdf:type owl:NamedIndividual , :Trilha ; rdfs:label "Mestrado e Doutorado"@pt .
+:TrilhaTutorial rdf:type owl:NamedIndividual , :Trilha ; rdfs:label "Tutorial"@pt .
+:TrilhaPrefacio rdf:type owl:NamedIndividual , :Trilha ; rdfs:label "Prefácio"@pt .
+
+[] rdf:type owl:AllDifferent ;
+    owl:distinctMembers ( :Portugues :Ingles :Espanhol ) .
+
+[] rdf:type owl:AllDifferent ;
+    owl:distinctMembers ( :TrilhaPesquisa :TrilhaFerramentas :TrilhaIndustria
+                          :TrilhaMestradoDoutorado :TrilhaTutorial :TrilhaPrefacio ) .
+
+# Tipos de contribuição mantidos como vocabulário opcional.
+:PropostaDeSolucao rdf:type owl:NamedIndividual , :TipoDeContribuicao ;
+    rdfs:label "Proposta de Solução"@pt .
+:PesquisaDeValidacao rdf:type owl:NamedIndividual , :TipoDeContribuicao ;
+    rdfs:label "Pesquisa de Validação"@pt .
+:PesquisaDeAvaliacao rdf:type owl:NamedIndividual , :TipoDeContribuicao ;
+    rdfs:label "Pesquisa de Avaliação"@pt .
+:ArtigoDeExperiencia rdf:type owl:NamedIndividual , :TipoDeContribuicao ;
+    rdfs:label "Artigo de Experiência"@pt .
+:ArtigoDeOpiniao rdf:type owl:NamedIndividual , :TipoDeContribuicao ;
+    rdfs:label "Artigo de Opinião"@pt .
+
+# ==========================================================
+# TEMAS DE PESQUISA
+# ==========================================================
+
+:Acessibilidade rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Acessibilidade"@pt .
+:AplicacoesMoveis rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Aplicações Móveis"@pt .
+:AquisicaoDeSoftware rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Aquisição / Licitação de Software"@pt .
+:BPM rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "Processos de Negócio (BPM)"@pt .
+:CasosDeUso rdf:type owl:NamedIndividual , :TecnicaDeElicitacao ;
+    rdfs:label "Cenários / Casos de Uso"@pt .
+:CatalogoDeRequisitos rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Catálogo de Requisitos"@pt .
+:Competencias rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Competências"@pt .
+:Consistencia rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Consistência"@pt .
+:ElicitacaoDeRequisitos rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Elicitação de Requisitos"@pt .
+:EnsinoDeRE rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Ensino de Engenharia de Requisitos"@pt .
+:EspecificacaoDeRequisitos rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Especificação de Requisitos"@pt .
+:Explicabilidade rdf:type owl:NamedIndividual , :TemaDePrivacidadeEEtica ;
+    rdfs:label "Explicabilidade / Transparência"@pt .
+:IAGenerativa rdf:type owl:NamedIndividual , :TecnicaDeIA ;
+    rdfs:label "LLM / IA Generativa"@pt .
+:LEL rdf:type owl:NamedIndividual , :TecnicaDeElicitacao ;
+    rdfs:label "Léxico Estendido da Linguagem (LEL)"@pt .
+:MetodosAgeis rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Métodos Ágeis"@pt .
+:ModelagemConceitual rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "Modelagem Conceitual"@pt .
+:PLN rdf:type owl:NamedIndividual , :TecnicaDeIA ;
+    rdfs:label "Processamento de Linguagem Natural"@pt .
+:Privacidade rdf:type owl:NamedIndividual , :TemaDePrivacidadeEEtica ;
+    rdfs:label "Privacidade de Dados / LGPD"@pt .
+:RequisitosNaoFuncionais rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Requisitos Não-Funcionais"@pt .
+:RevisaoSistematica rdf:type owl:NamedIndividual , :TemaDePesquisa ;
+    rdfs:label "Revisão Sistemática da Literatura"@pt .
+:TestesDeSoftware rdf:type owl:NamedIndividual , :TecnicaDeValidacao ;
+    rdfs:label "Fuzzing / Testes de Software"@pt .
+:UserStories rdf:type owl:NamedIndividual , :TecnicaDeElicitacao ;
+    rdfs:label "User Stories"@pt .
+:iStar rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "i*/iStar"@pt .
+
+:iStar rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "i*/iStar"@pt .
+:Tropos rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "Tropos"@pt ;
+    :dependeDe :iStar .
+:NFRFramework rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "NFR Framework"@pt .
+:KAOS rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "KAOS"@pt .
+:Volere rdf:type owl:NamedIndividual , :TecnicaDeElicitacao ;
+    rdfs:label "Volere"@pt .
+
+# ==========================================================
+# EDIÇÃO WER 2026
+# ==========================================================
+
+:edicao2026 rdf:type owl:NamedIndividual , :Edicao ;
+    :ano "2026"^^xsd:integer ;
+    :localidade "La Plata, Argentina" ;
+    :isbn "978-65-02-19591-8" ;
+    :issn "2675-0066" ;
+    :linkEdicao "https://werpapers.dimap.ufrn.br/proceedings/WER2026/"^^xsd:anyURI ;
+    rdfs:label "WER 2026"@pt ;
+    rdfs:comment "Edição realizada em La Plata, Argentina. Localidade e ISBN/ISSN verificados no WERpapers e nas páginas de anais do WER 2026."@pt .
+
+
+# ==========================================================
+# INSTITUIÇÕES
+# ==========================================================
+
+:instituicaoEscolaPolitecnicaDaUniversidadeDeSaoPauloPoliUSP rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Escola Politécnica da Universidade de São Paulo (Poli-USP)" .
+:instituicaoFaculdadeSenacPernambucoSENACPE rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Faculdade Senac Pernambuco (SENAC-PE)" .
+:instituicaoIIILIDIInstitutoDeInvestigacionEnInformaticaLIDI rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "III-LIDI (Instituto de Investigación en Informática LIDI)" .
+:instituicaoInstitutoFederalGoianoIFGoiano rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Instituto Federal Goiano (IF Goiano)" .
+:instituicaoInstitutoFederalDeEducacaoCienciaETecnologiaDoCearaIFCE rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Instituto Federal de Educação, Ciência e Tecnologia do Ceará (IFCE)" .
+:instituicaoPUCRio rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "PUC-Rio" .
+:instituicaoUniversidadArgentinaDeLaEmpresaUADEINTEC rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Argentina de la Empresa (UADE) — INTEC" .
+:instituicaoUniversidadNacionalDeEntreRiosUNERFacultadDeCienciasDeLaAdministracion rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de Entre Ríos (UNER) — Facultad de Ciencias de la Administración" .
+:instituicaoUniversidadNacionalDeHurlinghamUNAHUR rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de Hurlingham (UNAHUR)" .
+:instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de La Plata (UNLP) — Facultad de Informática" .
+:instituicaoUniversidadNacionalDeLaPlataUNLPIIILIDI rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de La Plata (UNLP) — III-LIDI" .
+:instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de La Plata (UNLP) — LIFIA" .
+:instituicaoUniversidadNacionalDeSanAgustinDeArequipaUNSA rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de San Agustín de Arequipa (UNSA)" .
+:instituicaoUniversidadNacionalDeSanAntonioAbadDelCuscoUNSAAC rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de San Antonio Abad del Cusco (UNSAAC)" .
+:instituicaoUniversidadNacionalDeSanJuan rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional de San Juan" .
+:instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNCPBA rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional del Centro de la Provincia de Buenos Aires (UNCPBA)" .
+:instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNICEN rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional del Centro de la Provincia de Buenos Aires (UNICEN)" .
+:instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNICENISISTAN rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional del Centro de la Provincia de Buenos Aires (UNICEN) — ISISTAN" .
+:instituicaoUniversidadNacionalDelOesteUNO rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad Nacional del Oeste (UNO)" .
+:instituicaoUniversidadDeBelgrano rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidad de Belgrano" .
+:instituicaoUniversidadeEstadualDoOesteDoParanaUNIOESTE rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Estadual do Oeste do Paraná (UNIOESTE)" .
+:instituicaoUniversidadeFederalRuralDoRioDeJaneiroUFRRJ rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal Rural do Rio de Janeiro (UFRRJ)" .
+:instituicaoUniversidadeFederalDaBahiaUFBA rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal da Bahia (UFBA)" .
+:instituicaoUniversidadeFederalDeAlagoasUFAL rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal de Alagoas (UFAL)" .
+:instituicaoUniversidadeFederalDeGoiasUFGInstitutoDeInformatica rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal de Goiás (UFG) — Instituto de Informática" .
+:instituicaoUniversidadeFederalDePernambucoUFPE rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal de Pernambuco (UFPE)" .
+:instituicaoUniversidadeFederalDoCearaUFC rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal do Ceará (UFC)" .
+:instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal do Estado do Rio de Janeiro (UNIRIO)" .
+:instituicaoUniversidadeFederalDoRioGrandeDoNorteUFRN rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade Federal do Rio Grande do Norte (UFRN)" .
+:instituicaoUniversidadeDeBrasiliaUnB rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade de Brasília (UnB)" .
+:instituicaoUniversidadeDePernambucoUPE rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade de Pernambuco (UPE)" .
+:instituicaoUniversidadeDeSaoPauloUSPEscolaPolitecnica rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade de São Paulo (USP) — Escola Politécnica" .
+:instituicaoUniversidadeDoEstadoDoRioDeJaneiroUERJ rdf:type owl:NamedIndividual , :Instituicao ;
+    :nomeInstituicao "Universidade do Estado do Rio de Janeiro (UERJ)" .
+
+# ==========================================================
+# AUTORES
+# ==========================================================
+
+:autorAlbertoSebastian rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Alberto Sebastian"
+ ;
+    :afiliadoA :instituicaoUniversidadDeBelgrano .
+:autorAlejandroFernandez rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Alejandro Fernandez"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica .
+:autorAlexLeodanArce rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Alex Leodan Arce"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica .
+:autorAmandaSousa rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Amanda Sousa"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoCearaUFC .
+:autorAndreaAlegretti rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Andrea Alegretti"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica .
+:autorAndressaGirottoVargas rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Andressa Girotto Vargas"
+ ;
+    :afiliadoA :instituicaoUniversidadeDeBrasiliaUnB .
+:autorAnnaBeatrizMarques rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Anna Beatriz Marques"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoCearaUFC .
+:autorCaioMoussaAssumpcao rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Caio Moussa Assumpção"
+ ;
+    :afiliadoA :instituicaoUniversidadeDeSaoPauloUSPEscolaPolitecnica .
+:autorCarlosCarden rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Carlos Carden"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorCarlosNusch rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Carlos Nusch"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorCatalinaMostaccio rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Catalina Mostaccio"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorClaudiaMarcos rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Claudia Marcos"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNICENISISTAN .
+:autorClaudioHenriqueMedaberJambo rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Claudio Henrique Medaber Jambo"
+ ;
+    :afiliadoA :instituicaoUniversidadeDoEstadoDoRioDeJaneiroUERJ .
+:autorDelfinaVillarrealGarrido rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Delfina Villarreal Garrido"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNCPBA .
+:autorDiegoTorres rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Diego Torres"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica .
+:autorEdgarSarmiento rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Edgar Sarmiento"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeSanAgustinDeArequipaUNSA .
+:autorEdgarSarmientoCalisaya rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Edgar Sarmiento Calisaya"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeSanAgustinDeArequipaUNSA .
+:autorEdnaDiasCanedo rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Edna Dias Canedo"
+ ;
+    :afiliadoA :instituicaoUniversidadeDeBrasiliaUnB .
+:autorEduardoAlmentero rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Eduardo Almentero"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalRuralDoRioDeJaneiroUFRRJ .
+:autorEduardoKinderAlmentero rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Eduardo Kinder Almentero"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalRuralDoRioDeJaneiroUFRRJ .
+:autorEliasRoa rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Elías Roa"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorEnzoGiandon rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Enzo Giandon"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorFabioLevySiqueira rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Fabio Levy Siqueira"
+ ;
+    :afiliadoA :instituicaoEscolaPolitecnicaDaUniversidadeDeSaoPauloPoliUSP .
+:autorFedericoCristina rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Federico Cristina"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica .
+:autorFernandaMariaRibeiroDeAlencar rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Fernanda Maria Ribeiro de Alencar"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDeAlagoasUFAL .
+:autorFlavioHenriqueMendonca rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Flávio Henrique Mendonça"
+ ;
+    :nomeAlternativo "Flavio Henrique Mendonca"
+ ;
+    :afiliadoA :instituicaoUniversidadeDoEstadoDoRioDeJaneiroUERJ .
+:autorGabrielaPerez rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Gabriela Perez"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorGeraldoGabrielCrelierDosSantos rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Geraldo Gabriel Crelier dos Santos"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO .
+:autorGermanRuiz rdf:type owl:NamedIndividual , :Autor ;
+    :nome "German Ruiz"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorGiulianaMaltempo rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Giuliana Maltempo"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorGracielaDoraSusanaHadad rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Graciela Dora Susana Hadad"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDelOesteUNO .
+:autorGracielaHadad rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Graciela Hadad"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDelOesteUNO .
+:autorGregorioPonce rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Gregorio Ponce"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorGuillermoRodriguez rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Guillermo Rodríguez"
+ ;
+    :afiliadoA :instituicaoUniversidadArgentinaDeLaEmpresaUADEINTEC .
+:autorHenriquePradoDeSaSousa rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Henrique Prado de Sá Sousa"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO .
+:autorHenriqueSousa rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Henrique Sousa"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO .
+:autorHenriqueDeSaSousa rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Henrique de Sá Sousa"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO .
+:autorJaelsonCastro rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Jaelson Castro"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDePernambucoUFPE .
+:autorJoaquinaNogueira rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Joaquina Nogueira"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorJobsonLuizMassollarDaSilva rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Jobson Luiz Massollar da Silva"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO .
+:autorJoseAntonioMacedo rdf:type owl:NamedIndividual , :Autor ;
+    :nome "José Antônio Macêdo"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoCearaUFC .
+:autorJoaoLucasVasconcelos rdf:type owl:NamedIndividual , :Autor ;
+    :nome "João Lucas Vasconcelos"
+ ;
+    :afiliadoA :instituicaoUniversidadeDeBrasiliaUnB .
+:autorJoaoMarcosDeMattosBarguil rdf:type owl:NamedIndividual , :Autor ;
+    :nome "João Marcos de Mattos Barguil"
+ ;
+    :afiliadoA :instituicaoEscolaPolitecnicaDaUniversidadeDeSaoPauloPoliUSP .
+:autorJuanEscudero rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Juan Escudero"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorJuanIgnacioGlassman rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Juan Ignacio Glassman"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorJuanIgnacioTorres rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Juan Ignacio Torres"
+ ;
+    :afiliadoA :instituicaoIIILIDIInstitutoDeInvestigacionEnInformaticaLIDI .
+:autorJulianaAilenDelleVille rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Juliana Ailen Delle Ville"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorJulioCesarSampaioDoPradoLeite rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Julio Cesar Sampaio do Prado Leite"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDaBahiaUFBA .
+:autorKauanCampos rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Kauan Campos"
+ ;
+    :afiliadoA :instituicaoUniversidadeEstadualDoOesteDoParanaUNIOESTE .
+:autorLarissaPinheiro rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Larissa Pinheiro"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDaBahiaUFBA .
+:autorLauraTosselli rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Laura Tosselli"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeSanJuan .
+:autorLeandroAntonelli rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Leandro Antonelli"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorLuisaCaetanoCorreia rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Luísa Caetano Correia"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoRioGrandeDoNorteUFRN .
+:autorLyreneFSilva rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Lyrene F. Silva"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoRioGrandeDoNorteUFRN .
+:autorLyreneFernandesDaSilva rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Lyrene Fernandes da Silva"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoRioGrandeDoNorteUFRN .
+:autorLiviaMancine rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Lívia Mancine"
+ ;
+    :afiliadoA :instituicaoInstitutoFederalGoianoIFGoiano .
+:autorMarcMarinhoDeAlcantara rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Marc Marinho de Alcântara"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDePernambucoUFPE .
+:autorMarcelaRidao rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Marcela Ridao"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNICEN .
+:autorMarcosKalinowski rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Marcos Kalinowski"
+ ;
+    :afiliadoA :instituicaoPUCRio .
+:autorMariaAugustaNascimentoDeMoura rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Maria Augusta Nascimento de Moura"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDeAlagoasUFAL .
+:autorMariaLencastre rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Maria Lencastre"
+ ;
+    :afiliadoA :instituicaoUniversidadeDePernambucoUPE .
+:autorMarisaPanizzi rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Marisa Panizzi"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeHurlinghamUNAHUR .
+:autorMartinaHubler rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Martina Hübler"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorMariaLauraAchetta rdf:type owl:NamedIndividual , :Autor ;
+    :nome "María Laura Achetta"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeSanJuan .
+:autorMauricioRodriguezRicon rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Mauricio Rodríguez Ricon"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorMercedesSoria rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Mercedes Soria"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeSanJuan .
+:autorNicolasSimonRuffolo rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Nicolás Simón Ruffolo"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorOverCausil rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Over Causil"
+ ;
+    :afiliadoA :instituicaoFaculdadeSenacPernambucoSENACPE .
+:autorPabloJavierThomas rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Pablo Javier Thomas"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPIIILIDI .
+:autorPabloThomas rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Pablo Thomas"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPIIILIDI .
+:autorPatriciaPesado rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Patricia Pesado"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica .
+:autorPauloRobertoSilvaDosReis rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Paulo Roberto Silva dos Reis"
+ ;
+    :afiliadoA :instituicaoUniversidadeDoEstadoDoRioDeJaneiroUERJ .
+:autorPauloSergioMedeiros rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Paulo Sérgio Medeiros"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoRioGrandeDoNorteUFRN .
+:autorRafaelLima rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Rafael Lima"
+ ;
+    :afiliadoA :instituicaoUniversidadeEstadualDoOesteDoParanaUNIOESTE .
+:autorRamonLuna rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Ramon Luna"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoCearaUFC .
+:autorRenataBraga rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Renata Braga"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDeGoiasUFGInstitutoDeInformatica .
+:autorRenatoBulcaoNeto rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Renato Bulcão-Neto"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDeGoiasUFGInstitutoDeInformatica .
+:autorRhenaraOliveira rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Rhenara Oliveira"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoCearaUFC .
+:autorRitaSuzanaPitangueiraMaciel rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Rita Suzana Pitangueira Maciel"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDaBahiaUFBA .
+:autorRossanaAndrade rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Rossana Andrade"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoCearaUFC .
+:autorRoxanaPortugal rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Roxana Portugal"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeSanAntonioAbadDelCuscoUNSAAC .
+:autorSamuelAnjosNeto rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Samuel Anjos Neto"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDePernambucoUFPE .
+:autorSebastianDapoto rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Sebastián Dapoto"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPIIILIDI .
+:autorSebastianDiaz rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Sebastián Diaz"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorSofiaCelano rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Sofía Celano"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA .
+:autorSoniaSantana rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Sonia Santana"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeEntreRiosUNERFacultadDeCienciasDeLaAdministracion .
+:autorSavioFreire rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Sávio Freire"
+ ;
+    :afiliadoA :instituicaoInstitutoFederalDeEducacaoCienciaETecnologiaDoCearaIFCE .
+:autorTadeuClasse rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Tadeu Classe"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO .
+:autorTassioFerenziniMartinsSirqueira rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Tassio Ferenzini Martins Sirqueira"
+ ;
+    :afiliadoA :instituicaoUniversidadeDoEstadoDoRioDeJaneiroUERJ .
+:autorValeriaOrtizQuiroz rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Valeria Ortiz Quiroz"
+ ;
+    :afiliadoA :instituicaoUniversidadNacionalDeSanJuan .
+:autorVeraMariaWerneck rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Vera Maria Werneck"
+ ;
+    :afiliadoA :instituicaoUniversidadeDoEstadoDoRioDeJaneiroUERJ .
+:autorVictorSantander rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Victor Santander"
+ ;
+    :afiliadoA :instituicaoUniversidadeEstadualDoOesteDoParanaUNIOESTE .
+:autorAlvaroSoaresDosSantos rdf:type owl:NamedIndividual , :Autor ;
+    :nome "Álvaro Soares dos Santos"
+ ;
+    :afiliadoA :instituicaoUniversidadeFederalDoRioGrandeDoNorteUFRN .
+
+
+# ==========================================================
+# INSTITUIÇÃO -> AUTORES (inversas explicitadas)
+# ==========================================================
+:instituicaoEscolaPolitecnicaDaUniversidadeDeSaoPauloPoliUSP :possuiAutor :autorFabioLevySiqueira, :autorJoaoMarcosDeMattosBarguil .
+:instituicaoFaculdadeSenacPernambucoSENACPE :possuiAutor :autorOverCausil .
+:instituicaoIIILIDIInstitutoDeInvestigacionEnInformaticaLIDI :possuiAutor :autorJuanIgnacioTorres .
+:instituicaoInstitutoFederalGoianoIFGoiano :possuiAutor :autorLiviaMancine .
+:instituicaoInstitutoFederalDeEducacaoCienciaETecnologiaDoCearaIFCE :possuiAutor :autorSavioFreire .
+:instituicaoPUCRio :possuiAutor :autorMarcosKalinowski .
+:instituicaoUniversidadArgentinaDeLaEmpresaUADEINTEC :possuiAutor :autorGuillermoRodriguez .
+:instituicaoUniversidadNacionalDeEntreRiosUNERFacultadDeCienciasDeLaAdministracion :possuiAutor :autorSoniaSantana .
+:instituicaoUniversidadNacionalDeHurlinghamUNAHUR :possuiAutor :autorMarisaPanizzi .
+:instituicaoUniversidadNacionalDeLaPlataUNLPFacultadDeInformatica :possuiAutor :autorAlejandroFernandez, :autorAlexLeodanArce, :autorAndreaAlegretti, :autorDiegoTorres, :autorFedericoCristina, :autorGabrielaPerez, :autorLeandroAntonelli, :autorPabloThomas, :autorPatriciaPesado, :autorSebastianDapoto .
+:instituicaoUniversidadNacionalDeLaPlataUNLPIIILIDI :possuiAutor :autorPabloJavierThomas, :autorPabloThomas, :autorSebastianDapoto .
+:instituicaoUniversidadNacionalDeLaPlataUNLPLIFIA :possuiAutor :autorCarlosCarden, :autorCarlosNusch, :autorCatalinaMostaccio, :autorEliasRoa, :autorEnzoGiandon, :autorGabrielaPerez, :autorGermanRuiz, :autorGiulianaMaltempo, :autorGregorioPonce, :autorJoaquinaNogueira, :autorJuanEscudero, :autorJuanIgnacioGlassman, :autorJulianaAilenDelleVille, :autorLeandroAntonelli, :autorMartinaHubler, :autorMauricioRodriguezRicon, :autorNicolasSimonRuffolo, :autorSebastianDiaz, :autorSofiaCelano .
+:instituicaoUniversidadNacionalDeSanAgustinDeArequipaUNSA :possuiAutor :autorEdgarSarmiento, :autorEdgarSarmientoCalisaya .
+:instituicaoUniversidadNacionalDeSanAntonioAbadDelCuscoUNSAAC :possuiAutor :autorRoxanaPortugal .
+:instituicaoUniversidadNacionalDeSanJuan :possuiAutor :autorLauraTosselli, :autorMariaLauraAchetta, :autorMercedesSoria, :autorValeriaOrtizQuiroz .
+:instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNCPBA :possuiAutor :autorDelfinaVillarrealGarrido .
+:instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNICEN :possuiAutor :autorMarcelaRidao .
+:instituicaoUniversidadNacionalDelCentroDeLaProvinciaDeBuenosAiresUNICENISISTAN :possuiAutor :autorClaudiaMarcos .
+:instituicaoUniversidadNacionalDelOesteUNO :possuiAutor :autorGracielaDoraSusanaHadad, :autorGracielaHadad .
+:instituicaoUniversidadDeBelgrano :possuiAutor :autorAlbertoSebastian .
+:instituicaoUniversidadeEstadualDoOesteDoParanaUNIOESTE :possuiAutor :autorKauanCampos, :autorRafaelLima, :autorVictorSantander .
+:instituicaoUniversidadeFederalRuralDoRioDeJaneiroUFRRJ :possuiAutor :autorEduardoAlmentero, :autorEduardoKinderAlmentero .
+:instituicaoUniversidadeFederalDaBahiaUFBA :possuiAutor :autorJulioCesarSampaioDoPradoLeite, :autorLarissaPinheiro, :autorRitaSuzanaPitangueiraMaciel .
+:instituicaoUniversidadeFederalDeAlagoasUFAL :possuiAutor :autorFernandaMariaRibeiroDeAlencar, :autorMariaAugustaNascimentoDeMoura .
+:instituicaoUniversidadeFederalDeGoiasUFGInstitutoDeInformatica :possuiAutor :autorRenataBraga, :autorRenatoBulcaoNeto .
+:instituicaoUniversidadeFederalDePernambucoUFPE :possuiAutor :autorJaelsonCastro, :autorMarcMarinhoDeAlcantara, :autorSamuelAnjosNeto .
+:instituicaoUniversidadeFederalDoCearaUFC :possuiAutor :autorAmandaSousa, :autorAnnaBeatrizMarques, :autorJoseAntonioMacedo, :autorRamonLuna, :autorRhenaraOliveira, :autorRossanaAndrade .
+:instituicaoUniversidadeFederalDoEstadoDoRioDeJaneiroUNIRIO :possuiAutor :autorGeraldoGabrielCrelierDosSantos, :autorHenriquePradoDeSaSousa, :autorHenriqueSousa, :autorHenriqueDeSaSousa, :autorJobsonLuizMassollarDaSilva, :autorTadeuClasse .
+:instituicaoUniversidadeFederalDoRioGrandeDoNorteUFRN :possuiAutor :autorLuisaCaetanoCorreia, :autorLyreneFSilva, :autorLyreneFernandesDaSilva, :autorPauloSergioMedeiros, :autorAlvaroSoaresDosSantos .
+:instituicaoUniversidadeDeBrasiliaUnB :possuiAutor :autorAndressaGirottoVargas, :autorEdnaDiasCanedo, :autorJoaoLucasVasconcelos .
+:instituicaoUniversidadeDePernambucoUPE :possuiAutor :autorMariaLencastre .
+:instituicaoUniversidadeDeSaoPauloUSPEscolaPolitecnica :possuiAutor :autorCaioMoussaAssumpcao .
+:instituicaoUniversidadeDoEstadoDoRioDeJaneiroUERJ :possuiAutor :autorClaudioHenriqueMedaberJambo, :autorFlavioHenriqueMendonca, :autorPauloRobertoSilvaDosReis, :autorTassioFerenziniMartinsSirqueira, :autorVeraMariaWerneck .
+
+# ==========================================================
+# ITENS DO EVENTO — WER 2026
+# ==========================================================
+
+:item202602 rdf:type owl:NamedIndividual , :ItemEspecial ;
+    :titulo "Preface: Proceedings of the 29th Workshop on Requirements Engineering (WER2026)" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202600.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202600.html"^^xsd:anyURI ;
+    :palavraChave "Requirements" ;
+    :palavraChave "Proceedings" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPrefacio ;
+    :temAutor :autorMarcelaRidao ;
+    :temAutor :autorHenriqueSousa ;
+    :temAutor :autorPabloThomas .
+:item202603 rdf:type owl:NamedIndividual , :ItemEspecial ;
+    :titulo "Tutorial: Visión Técnica y Social de la Gestión de los Requisitos" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202600_1.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202600_1.html"^^xsd:anyURI ;
+    :palavraChave "Requisitos" ;
+    :palavraChave "Tutorial" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaTutorial ;
+    :temAutor :autorGracielaHadad ;
+    :temAutor :autorJulioCesarSampaioDoPradoLeite .
+:artigo202604 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Requerimientos No Funcionales en Aplicaciones Móviles 3D con entornos de Realidad Aumentada" ;
+    :doi "10.29327/1884517.29-2" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202601.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202601.html"^^xsd:anyURI ;
+    :palavraChave "Requerimientos No Funcionales" ;
+    :palavraChave "Aplicaciones Móviles 3D" ;
+    :palavraChave "Realidad Aumentada" ;
+    :palavraChave "Rendimiento gráfico" ;
+    :palavraChave "Unity" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorSebastianDapoto ;
+    :temAutor :autorFedericoCristina ;
+    :temAutor :autorAlexLeodanArce ;
+    :temAutor :autorPabloJavierThomas ;
+    :temAutor :autorPatriciaPesado .
+:artigo202605 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Enriquecimiento Semántico del Lexico Extendido de Lenguaje (LEL) mediante Ontologías" ;
+    :doi "10.29327/1884517.29-3" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202602.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202602.html"^^xsd:anyURI ;
+    :palavraChave "Léxico Extendido del Lenguaje (LEL)" ;
+    :palavraChave "Vocabulario de Dominio" ;
+    :palavraChave "Elicitación" ;
+    :palavraChave "GAP Semántico" ;
+    :palavraChave "Ontologías" ;
+    :palavraChave "OWL" ;
+    :palavraChave "Web Semántica" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorMarcMarinhoDeAlcantara ;
+    :temAutor :autorLeandroAntonelli ;
+    :temAutor :autorDiegoTorres .
+:artigo202606 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Guías para mejorar la calidad de especificaciones de requerimientos en lenguaje natural" ;
+    :doi "10.29327/1884517.29-4" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202603.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202603.html"^^xsd:anyURI ;
+    :palavraChave "Calidad en Especificaciones" ;
+    :palavraChave "Procesamiento de Lenguaje Natural" ;
+    :palavraChave "Especificaciones Semiestructuradas" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorNicolasSimonRuffolo ;
+    :temAutor :autorGiulianaMaltempo ;
+    :temAutor :autorJulianaAilenDelleVille ;
+    :temAutor :autorCarlosCarden ;
+    :temAutor :autorEliasRoa ;
+    :temAutor :autorEnzoGiandon ;
+    :temAutor :autorGregorioPonce ;
+    :temAutor :autorJuanEscudero ;
+    :temAutor :autorJuanIgnacioGlassman ;
+    :temAutor :autorMartinaHubler ;
+    :temAutor :autorMauricioRodriguezRicon ;
+    :temAutor :autorSebastianDiaz ;
+    :temAutor :autorSofiaCelano ;
+    :temAutor :autorCarlosNusch ;
+    :temAutor :autorGabrielaPerez ;
+    :temAutor :autorLeandroAntonelli .
+:artigo202607 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Detección Temprana de Escenarios Duplicados en Español mediante Enriquecimiento Semántico basado en LEL" ;
+    :doi "10.29327/1884517.29-5" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202604.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202604.html"^^xsd:anyURI ;
+    :palavraChave "Ingeniería de Requerimientos" ;
+    :palavraChave "Escenarios" ;
+    :palavraChave "LEL" ;
+    :palavraChave "Similaridad Semántica" ;
+    :palavraChave "NLP" ;
+    :palavraChave "Sentence BERT" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorGabrielaPerez ;
+    :temAutor :autorCatalinaMostaccio ;
+    :temAutor :autorLeandroAntonelli .
+:artigo202608 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Ambiguity in Requirements Engineering: A Systematic Mapping of AI-Based Approaches" ;
+    :doi "10.29327/1884517.29-6" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202605.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202605.html"^^xsd:anyURI ;
+    :palavraChave "Ambiguity detection" ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "Artificial Intelligence" ;
+    :palavraChave "Systematic Mapping Study" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorJuanIgnacioTorres ;
+    :temAutor :autorLeandroAntonelli ;
+    :temAutor :autorPabloThomas .
+:artigo202609 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Evaluating Generative Artificial Intelligence for Teaching User Stories" ;
+    :doi "10.29327/1884517.29-7" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202606.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202606.html"^^xsd:anyURI ;
+    :palavraChave "Generative Artificial Intelligence" ;
+    :palavraChave "User Stories" ;
+    :palavraChave "Software Engineering Education" ;
+    :palavraChave "INVEST criteria" ;
+    :palavraChave "Pedagogical Assistance" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorClaudiaMarcos ;
+    :temAutor :autorGuillermoRodriguez ;
+    :temAutor :autorDelfinaVillarrealGarrido .
+:artigo202610 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Toward a Framework for Explainability in Intelligent Systems: Preliminary Results" ;
+    :doi "10.29327/1884517.29-8" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202607.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202607.html"^^xsd:anyURI ;
+    :palavraChave "Requirements" ;
+    :palavraChave "Explainability" ;
+    :palavraChave "Intelligent Systems" ;
+    :palavraChave "OpenUP" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorLiviaMancine ;
+    :temAutor :autorRenataBraga ;
+    :temAutor :autorRenatoBulcaoNeto .
+:artigo202611 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "A Requirements Engineering Perspective on Explainability Privacy Trade-offs in Decision Support Systems" ;
+    :doi "10.29327/1884517.29-9" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202608.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202608.html"^^xsd:anyURI ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "Explainable Artificial Intelligence" ;
+    :palavraChave "Privacy-Preserving Systems" ;
+    :palavraChave "Non-Functional Requirements" ;
+    :palavraChave "Decision Support Systems" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorAndressaGirottoVargas ;
+    :temAutor :autorEdnaDiasCanedo .
+:artigo202612 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Evaluación empírica del proceso ValReCo con propuesta de mejoras asistida por IA" ;
+    :doi "10.29327/1884517.29-10" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202609.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202609.html"^^xsd:anyURI ;
+    :palavraChave "Validación de Requerimientos" ;
+    :palavraChave "Proceso Colaborativo" ;
+    :palavraChave "Procesamiento de Lenguaje Natural" ;
+    :palavraChave "Inteligencia Artificial" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorSoniaSantana ;
+    :temAutor :autorLeandroAntonelli ;
+    :temAutor :autorPabloThomas ;
+    :temAutor :autorAlejandroFernandez .
+:artigo202613 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Uso de Abordagens da Engenharia de Requisitos Orientada a Objetivos na Indústria: Uma Revisão Sistemática da Literatura" ;
+    :doi "10.29327/1884517.29-11" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202610.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202610.html"^^xsd:anyURI ;
+    :palavraChave "Engenharia de requisitos orientada a objetivos (GORE)" ;
+    :palavraChave "Revisão sistemática da literatura" ;
+    :palavraChave "Pequenas e médias empresas" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorRafaelLima ;
+    :temAutor :autorVictorSantander .
+:artigo202614 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "A Fuzzing-Based Framework for Automated Ethical Risk Detection in Large Language Models" ;
+    :doi "10.29327/1884517.29-12" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202611.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202611.html"^^xsd:anyURI ;
+    :palavraChave "AI Ethics" ;
+    :palavraChave "Ethical Fuzzing" ;
+    :palavraChave "Large Language Models" ;
+    :palavraChave "Fairness Testing" ;
+    :palavraChave "Accountability" ;
+    :palavraChave "Transparency" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorJoaoLucasVasconcelos ;
+    :temAutor :autorEdnaDiasCanedo .
+:artigo202615 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Defining Requirements for Perishable Goods Management Systems (SAFE_GOOD)" ;
+    :doi "10.29327/1884517.29-13" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202612.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202612.html"^^xsd:anyURI ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "Regulatory Compliance" ;
+    :palavraChave "Perishable Products" ;
+    :palavraChave "Inventory Management Systems" ;
+    :palavraChave "Logistics Systems" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorSamuelAnjosNeto ;
+    :temAutor :autorJaelsonCastro ;
+    :temAutor :autorMariaLencastre ;
+    :temAutor :autorOverCausil .
+:artigo202616 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Requirements People Debt: Conceptualizing Human Factors in Requirements Engineering Debt" ;
+    :doi "10.29327/1884517.29-14" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202613.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202613.html"^^xsd:anyURI ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "Requirement Debt" ;
+    :palavraChave "Conceptual Map" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorLarissaPinheiro ;
+    :temAutor :autorSavioFreire ;
+    :temAutor :autorRitaSuzanaPitangueiraMaciel .
+:artigo202617 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Goal-Oriented Requirements Engineering: An Updated Systematic Mapping Study (2021–2025)" ;
+    :doi "10.29327/1884517.29-15" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202614.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202614.html"^^xsd:anyURI ;
+    :palavraChave "Goal-oriented Modeling" ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "Systematic Mapping Study" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorClaudioHenriqueMedaberJambo ;
+    :temAutor :autorFlavioHenriqueMendonca ;
+    :temAutor :autorPauloRobertoSilvaDosReis ;
+    :temAutor :autorTassioFerenziniMartinsSirqueira ;
+    :temAutor :autorVeraMariaWerneck .
+:artigo202618 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Un Enfoque Híbrido LLM + OCL para la Detección de Inconsistencias en Escenarios" ;
+    :doi "10.29327/1884517.29-16" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202615.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202615.html"^^xsd:anyURI ;
+    :palavraChave "Ingeniería de Requerimientos" ;
+    :palavraChave "Escenarios" ;
+    :palavraChave "OCL" ;
+    :palavraChave "Validación formal" ;
+    :palavraChave "LLMs" ;
+    :palavraChave "Metamodelo" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorGabrielaPerez ;
+    :temAutor :autorCatalinaMostaccio ;
+    :temAutor :autorLeandroAntonelli .
+:artigo202619 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Use of LLMs in Requirements Engineering: An Exploratory Study in Industry" ;
+    :doi "10.29327/1884517.29-17" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202616.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202616.html"^^xsd:anyURI ;
+    :palavraChave "LLM" ;
+    :palavraChave "requirements engineer" ;
+    :palavraChave "chat" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorFabioLevySiqueira ;
+    :temAutor :autorCaioMoussaAssumpcao ;
+    :temAutor :autorJoaoMarcosDeMattosBarguil ;
+    :temAutor :autorJulioCesarSampaioDoPradoLeite .
+:artigo202620 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Translating EU AI Act Transparency Requirements into Software Engineering Specifications" ;
+    :doi "10.29327/1884517.29-18" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202617.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202617.html"^^xsd:anyURI ;
+    :palavraChave "EU AI Act" ;
+    :palavraChave "NFR Framework" ;
+    :palavraChave "ISO/IEC 25059" ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "AI Transparency" ;
+    :palavraChave "Software Quality" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorEduardoAlmentero ;
+    :temAutor :autorHenriqueDeSaSousa ;
+    :temAutor :autorRoxanaPortugal ;
+    :temAutor :autorTadeuClasse ;
+    :temAutor :autorMarcosKalinowski .
+:artigo202621 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Avaliação do Impacto da Engenharia de Prompt na Elicitação e Documentação de Requisitos com LLMs" ;
+    :doi "10.29327/1884517.29-19" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202618.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202618.html"^^xsd:anyURI ;
+    :palavraChave "Engenharia de Requisitos" ;
+    :palavraChave "Elicitação de Requisitos" ;
+    :palavraChave "Documentação de Requisitos" ;
+    :palavraChave "Large Language Models (LLMs)" ;
+    :palavraChave "Engenharia de Prompt" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorAlvaroSoaresDosSantos ;
+    :temAutor :autorLyreneFernandesDaSilva .
+:artigo202622 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Utilizando a Engenharia de Software Experimental para avaliar a implementação das Regras de Garantia de Consistência na ferramenta JGOOSE" ;
+    :doi "10.29327/1884517.29-20" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202619.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202619.html"^^xsd:anyURI ;
+    :palavraChave "Engenharia de software experimental" ;
+    :palavraChave "Derivação semi-automática" ;
+    :palavraChave "Ferramenta CASE" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorKauanCampos ;
+    :temAutor :autorRafaelLima ;
+    :temAutor :autorVictorSantander .
+:artigo202623 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Extensões BPMN para Conformidade com a LGPD e GDPR: Um Panorama do Estado da Arte" ;
+    :doi "10.29327/1884517.29-21" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202620.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202620.html"^^xsd:anyURI ;
+    :palavraChave "BPMN" ;
+    :palavraChave "Privacy" ;
+    :palavraChave "LGPD" ;
+    :palavraChave "GDPR" ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "Privacy-by-Design" ;
+    :palavraChave "Business Process Modeling" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorGeraldoGabrielCrelierDosSantos ;
+    :temAutor :autorHenriquePradoDeSaSousa ;
+    :temAutor :autorEduardoKinderAlmentero ;
+    :temAutor :autorTadeuClasse .
+:artigo202624 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Del Aula a la Práctica Profesional Temprana" ;
+    :doi "10.29327/1884517.29-22" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202621.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202621.html"^^xsd:anyURI ;
+    :palavraChave "Educación en Ingeniería" ;
+    :palavraChave "Ingeniería de requerimientos" ;
+    :palavraChave "Elicitación de requerimientos" ;
+    :palavraChave "Aprendizaje Basado en Proyectos" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorValeriaOrtizQuiroz ;
+    :temAutor :autorMercedesSoria ;
+    :temAutor :autorLauraTosselli ;
+    :temAutor :autorMariaLauraAchetta .
+:artigo202625 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Modelagem Conceitual do Aprendizado Autodidata no Ambiente Online Orientado por Competências" ;
+    :doi "10.29327/1884517.29-23" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202622.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202622.html"^^xsd:anyURI ;
+    :palavraChave "Aprendizagem autodidata" ;
+    :palavraChave "Processo de aprendizagem" ;
+    :palavraChave "Aprendizado orientado por competências" ;
+    :palavraChave "Aprendizagem online" ;
+    :palavraChave "Modelagem conceitual" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaPesquisa ;
+    :temAutor :autorLuisaCaetanoCorreia ;
+    :temAutor :autorHenriquePradoDeSaSousa ;
+    :temAutor :autorPauloSergioMedeiros ;
+    :temAutor :autorJobsonLuizMassollarDaSilva ;
+    :temAutor :autorEdgarSarmientoCalisaya .
+:artigo202626 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Hacia un método para definir escenarios a partir de User Story Mapping" ;
+    :doi "10.29327/1884517.29-24" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202623.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202623.html"^^xsd:anyURI ;
+    :palavraChave "Especificación de Requisitos" ;
+    :palavraChave "User Story Mapping" ;
+    :palavraChave "Escenarios" ;
+    :palavraChave "Método Operacional" ;
+    :palavraChave "Trazabilidad" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaMestradoDoutorado ;
+    :temAutor :autorAndreaAlegretti ;
+    :temAutor :autorLeandroAntonelli ;
+    :temAutor :autorMarisaPanizzi .
+:artigo202627 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Explainability Requirements Engineering in AI-enabled Systems" ;
+    :doi "10.29327/1884517.29-25" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202624.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202624.html"^^xsd:anyURI ;
+    :palavraChave "Requirements Engineering" ;
+    :palavraChave "Explainability" ;
+    :palavraChave "AI-enabled Systems" ;
+    :palavraChave "OpenUP" ;
+    :palavraChave "Design Science Research" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaMestradoDoutorado ;
+    :temAutor :autorLiviaMancine ;
+    :temAutor :autorRenataBraga ;
+    :temAutor :autorRenatoBulcaoNeto .
+:artigo202628 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Uma Abordagem para Elicitação de Requisitos em Ambientes Ágeis baseada na Integração entre Design Thinking e Engenharia de Requisitos" ;
+    :doi "10.29327/1884517.29-26" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202625.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202625.html"^^xsd:anyURI ;
+    :palavraChave "Engenharia de Requisitos" ;
+    :palavraChave "Design Thinking" ;
+    :palavraChave "Métodos Ágeis" ;
+    :palavraChave "Elicitação de Requisitos" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaMestradoDoutorado ;
+    :temAutor :autorMariaAugustaNascimentoDeMoura ;
+    :temAutor :autorFernandaMariaRibeiroDeAlencar .
+:artigo202629 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Proceso Visual de Conceptualización del Universo de Discurso" ;
+    :doi "10.29327/1884517.29-27" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202626.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202626.html"^^xsd:anyURI ;
+    :palavraChave "Elicitación" ;
+    :palavraChave "Facilitación Gráfica" ;
+    :palavraChave "Mapas Conceptuales" ;
+    :palavraChave "Mapas Mentales" ;
+    :palavraChave "Modelado Conceptual" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaMestradoDoutorado ;
+    :temAutor :autorAlbertoSebastian ;
+    :temAutor :autorGracielaDoraSusanaHadad ;
+    :temAutor :autorLeandroAntonelli .
+:artigo202630 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Métricas de Processo Observáveis em Repositórios Públicos: Um Catálogo Fundamentado na Literatura Scrum" ;
+    :doi "10.29327/1884517.29-28" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202627.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202627.html"^^xsd:anyURI ;
+    :palavraChave "Métricas ágeis" ;
+    :palavraChave "Catálogo de métricas" ;
+    :palavraChave "Requisitos de qualidade" ;
+    :palavraChave "ISO/IEC 25010" ;
+    :palavraChave "Scrum" ;
+    :palavraChave "Projetos open source" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Portugues ;
+    :pertenceATrilha :TrilhaMestradoDoutorado ;
+    :temAutor :autorFlavioHenriqueMendonca ;
+    :temAutor :autorTassioFerenziniMartinsSirqueira ;
+    :temAutor :autorVeraMariaWerneck .
+:artigo202631 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Using ChatGPT to Support Accessibility Requirements Specification: Experience from a Public Sector Platform" ;
+    :doi "10.29327/1884517.29-29" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202628.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202628.html"^^xsd:anyURI ;
+    :palavraChave "Accessibility Requirements" ;
+    :palavraChave "Large Language Models" ;
+    :palavraChave "Requirements Engineering" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaIndustria ;
+    :temAutor :autorAnnaBeatrizMarques ;
+    :temAutor :autorRhenaraOliveira ;
+    :temAutor :autorRamonLuna ;
+    :temAutor :autorAmandaSousa ;
+    :temAutor :autorJoseAntonioMacedo ;
+    :temAutor :autorRossanaAndrade .
+:artigo202632 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "From Workshop Transcripts to Requirements Models - A Heuristic and RAG-Based Approach for Reusing Elicitation Data" ;
+    :doi "10.29327/1884517.29-30" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202629.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202629.html"^^xsd:anyURI ;
+    :palavraChave "Elicitation Data" ;
+    :palavraChave "Requirements Modeling" ;
+    :palavraChave "Interpretative Reasoning" ;
+    :palavraChave "Data Reuse" ;
+    :palavraChave "Qualitative Data" ;
+    :palavraChave "Semantic Analysis" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Ingles ;
+    :pertenceATrilha :TrilhaIndustria ;
+    :temAutor :autorRoxanaPortugal ;
+    :temAutor :autorJulioCesarSampaioDoPradoLeite ;
+    :temAutor :autorLyreneFSilva ;
+    :temAutor :autorEdgarSarmiento .
+:artigo202633 rdf:type owl:NamedIndividual , :Artigo ;
+    :titulo "Construcción Incremental de LEL en Español Asistida por LLM con Trazabilidad e Integración Semántica" ;
+    :doi "10.29327/1884517.29-31" ;
+    :link "https://werpapers.dimap.ufrn.br/papers/WER2026/wer202630.pdf"^^xsd:anyURI ;
+    :linkPagina "https://werpapers.dimap.ufrn.br/proceedings/WER2026/wer202630.html"^^xsd:anyURI ;
+    :palavraChave "Ingeniería de Requerimientos" ;
+    :palavraChave "LEL" ;
+    :palavraChave "NLP" ;
+    :palavraChave "Modelos Generativos" ;
+    :palavraChave "Trazabilidad" ;
+    :publicadoEm :edicao2026 ;
+    :temIdioma :Espanhol ;
+    :pertenceATrilha :TrilhaFerramentas ;
+    :temAutor :autorGabrielaPerez ;
+    :temAutor :autorJoaquinaNogueira ;
+    :temAutor :autorGermanRuiz ;
+    :temAutor :autorLeandroAntonelli .
+
+# ==========================================================
+# LIGAÇÕES ARTIGO -> TEMA DE PESQUISA
+# ==========================================================
+
+
+# ==========================================================
+# COAUTORIA
+# ==========================================================
+
+:autorAlbertoSebastian :coautorDe :autorGracielaDoraSusanaHadad .
+:autorAlbertoSebastian :coautorDe :autorLeandroAntonelli .
+:autorAlejandroFernandez :coautorDe :autorLeandroAntonelli .
+:autorAlejandroFernandez :coautorDe :autorPabloThomas .
+:autorAlejandroFernandez :coautorDe :autorSoniaSantana .
+:autorAlexLeodanArce :coautorDe :autorFedericoCristina .
+:autorAlexLeodanArce :coautorDe :autorPabloJavierThomas .
+:autorAlexLeodanArce :coautorDe :autorPatriciaPesado .
+:autorAlexLeodanArce :coautorDe :autorSebastianDapoto .
+:autorAmandaSousa :coautorDe :autorAnnaBeatrizMarques .
+:autorAmandaSousa :coautorDe :autorJoseAntonioMacedo .
+:autorAmandaSousa :coautorDe :autorRamonLuna .
+:autorAmandaSousa :coautorDe :autorRhenaraOliveira .
+:autorAmandaSousa :coautorDe :autorRossanaAndrade .
+:autorAndreaAlegretti :coautorDe :autorLeandroAntonelli .
+:autorAndreaAlegretti :coautorDe :autorMarisaPanizzi .
+:autorAndressaGirottoVargas :coautorDe :autorEdnaDiasCanedo .
+:autorAnnaBeatrizMarques :coautorDe :autorJoseAntonioMacedo .
+:autorAnnaBeatrizMarques :coautorDe :autorRamonLuna .
+:autorAnnaBeatrizMarques :coautorDe :autorRhenaraOliveira .
+:autorAnnaBeatrizMarques :coautorDe :autorRossanaAndrade .
+:autorCaioMoussaAssumpcao :coautorDe :autorFabioLevySiqueira .
+:autorCaioMoussaAssumpcao :coautorDe :autorJoaoMarcosDeMattosBarguil .
+:autorCaioMoussaAssumpcao :coautorDe :autorJulioCesarSampaioDoPradoLeite .
+:autorCarlosCarden :coautorDe :autorCarlosNusch .
+:autorCarlosCarden :coautorDe :autorEliasRoa .
+:autorCarlosCarden :coautorDe :autorEnzoGiandon .
+:autorCarlosCarden :coautorDe :autorGabrielaPerez .
+:autorCarlosCarden :coautorDe :autorGiulianaMaltempo .
+:autorCarlosCarden :coautorDe :autorGregorioPonce .
+:autorCarlosCarden :coautorDe :autorJuanEscudero .
+:autorCarlosCarden :coautorDe :autorJuanIgnacioGlassman .
+:autorCarlosCarden :coautorDe :autorJulianaAilenDelleVille .
+:autorCarlosCarden :coautorDe :autorLeandroAntonelli .
+:autorCarlosCarden :coautorDe :autorMartinaHubler .
+:autorCarlosCarden :coautorDe :autorMauricioRodriguezRicon .
+:autorCarlosCarden :coautorDe :autorNicolasSimonRuffolo .
+:autorCarlosCarden :coautorDe :autorSebastianDiaz .
+:autorCarlosCarden :coautorDe :autorSofiaCelano .
+:autorCarlosNusch :coautorDe :autorEliasRoa .
+:autorCarlosNusch :coautorDe :autorEnzoGiandon .
+:autorCarlosNusch :coautorDe :autorGabrielaPerez .
+:autorCarlosNusch :coautorDe :autorGiulianaMaltempo .
+:autorCarlosNusch :coautorDe :autorGregorioPonce .
+:autorCarlosNusch :coautorDe :autorJuanEscudero .
+:autorCarlosNusch :coautorDe :autorJuanIgnacioGlassman .
+:autorCarlosNusch :coautorDe :autorJulianaAilenDelleVille .
+:autorCarlosNusch :coautorDe :autorLeandroAntonelli .
+:autorCarlosNusch :coautorDe :autorMartinaHubler .
+:autorCarlosNusch :coautorDe :autorMauricioRodriguezRicon .
+:autorCarlosNusch :coautorDe :autorNicolasSimonRuffolo .
+:autorCarlosNusch :coautorDe :autorSebastianDiaz .
+:autorCarlosNusch :coautorDe :autorSofiaCelano .
+:autorCatalinaMostaccio :coautorDe :autorGabrielaPerez .
+:autorCatalinaMostaccio :coautorDe :autorLeandroAntonelli .
+:autorClaudiaMarcos :coautorDe :autorDelfinaVillarrealGarrido .
+:autorClaudiaMarcos :coautorDe :autorGuillermoRodriguez .
+:autorClaudioHenriqueMedaberJambo :coautorDe :autorFlavioHenriqueMendonca .
+:autorClaudioHenriqueMedaberJambo :coautorDe :autorPauloRobertoSilvaDosReis .
+:autorClaudioHenriqueMedaberJambo :coautorDe :autorTassioFerenziniMartinsSirqueira .
+:autorClaudioHenriqueMedaberJambo :coautorDe :autorVeraMariaWerneck .
+:autorDelfinaVillarrealGarrido :coautorDe :autorGuillermoRodriguez .
+:autorDiegoTorres :coautorDe :autorLeandroAntonelli .
+:autorDiegoTorres :coautorDe :autorMarcMarinhoDeAlcantara .
+:autorEdgarSarmiento :coautorDe :autorJulioCesarSampaioDoPradoLeite .
+:autorEdgarSarmiento :coautorDe :autorLyreneFSilva .
+:autorEdgarSarmiento :coautorDe :autorRoxanaPortugal .
+:autorEdgarSarmientoCalisaya :coautorDe :autorHenriquePradoDeSaSousa .
+:autorEdgarSarmientoCalisaya :coautorDe :autorJobsonLuizMassollarDaSilva .
+:autorEdgarSarmientoCalisaya :coautorDe :autorLuisaCaetanoCorreia .
+:autorEdgarSarmientoCalisaya :coautorDe :autorPauloSergioMedeiros .
+:autorEdnaDiasCanedo :coautorDe :autorJoaoLucasVasconcelos .
+:autorEduardoAlmentero :coautorDe :autorHenriqueDeSaSousa .
+:autorEduardoAlmentero :coautorDe :autorMarcosKalinowski .
+:autorEduardoAlmentero :coautorDe :autorRoxanaPortugal .
+:autorEduardoAlmentero :coautorDe :autorTadeuClasse .
+:autorEduardoKinderAlmentero :coautorDe :autorGeraldoGabrielCrelierDosSantos .
+:autorEduardoKinderAlmentero :coautorDe :autorHenriquePradoDeSaSousa .
+:autorEduardoKinderAlmentero :coautorDe :autorTadeuClasse .
+:autorEliasRoa :coautorDe :autorEnzoGiandon .
+:autorEliasRoa :coautorDe :autorGabrielaPerez .
+:autorEliasRoa :coautorDe :autorGiulianaMaltempo .
+:autorEliasRoa :coautorDe :autorGregorioPonce .
+:autorEliasRoa :coautorDe :autorJuanEscudero .
+:autorEliasRoa :coautorDe :autorJuanIgnacioGlassman .
+:autorEliasRoa :coautorDe :autorJulianaAilenDelleVille .
+:autorEliasRoa :coautorDe :autorLeandroAntonelli .
+:autorEliasRoa :coautorDe :autorMartinaHubler .
+:autorEliasRoa :coautorDe :autorMauricioRodriguezRicon .
+:autorEliasRoa :coautorDe :autorNicolasSimonRuffolo .
+:autorEliasRoa :coautorDe :autorSebastianDiaz .
+:autorEliasRoa :coautorDe :autorSofiaCelano .
+:autorEnzoGiandon :coautorDe :autorGabrielaPerez .
+:autorEnzoGiandon :coautorDe :autorGiulianaMaltempo .
+:autorEnzoGiandon :coautorDe :autorGregorioPonce .
+:autorEnzoGiandon :coautorDe :autorJuanEscudero .
+:autorEnzoGiandon :coautorDe :autorJuanIgnacioGlassman .
+:autorEnzoGiandon :coautorDe :autorJulianaAilenDelleVille .
+:autorEnzoGiandon :coautorDe :autorLeandroAntonelli .
+:autorEnzoGiandon :coautorDe :autorMartinaHubler .
+:autorEnzoGiandon :coautorDe :autorMauricioRodriguezRicon .
+:autorEnzoGiandon :coautorDe :autorNicolasSimonRuffolo .
+:autorEnzoGiandon :coautorDe :autorSebastianDiaz .
+:autorEnzoGiandon :coautorDe :autorSofiaCelano .
+:autorFabioLevySiqueira :coautorDe :autorJoaoMarcosDeMattosBarguil .
+:autorFabioLevySiqueira :coautorDe :autorJulioCesarSampaioDoPradoLeite .
+:autorFedericoCristina :coautorDe :autorPabloJavierThomas .
+:autorFedericoCristina :coautorDe :autorPatriciaPesado .
+:autorFedericoCristina :coautorDe :autorSebastianDapoto .
+:autorFernandaMariaRibeiroDeAlencar :coautorDe :autorMariaAugustaNascimentoDeMoura .
+:autorFlavioHenriqueMendonca :coautorDe :autorPauloRobertoSilvaDosReis .
+:autorFlavioHenriqueMendonca :coautorDe :autorTassioFerenziniMartinsSirqueira .
+:autorFlavioHenriqueMendonca :coautorDe :autorVeraMariaWerneck .
+:autorGabrielaPerez :coautorDe :autorGermanRuiz .
+:autorGabrielaPerez :coautorDe :autorGiulianaMaltempo .
+:autorGabrielaPerez :coautorDe :autorGregorioPonce .
+:autorGabrielaPerez :coautorDe :autorJoaquinaNogueira .
+:autorGabrielaPerez :coautorDe :autorJuanEscudero .
+:autorGabrielaPerez :coautorDe :autorJuanIgnacioGlassman .
+:autorGabrielaPerez :coautorDe :autorJulianaAilenDelleVille .
+:autorGabrielaPerez :coautorDe :autorLeandroAntonelli .
+:autorGabrielaPerez :coautorDe :autorMartinaHubler .
+:autorGabrielaPerez :coautorDe :autorMauricioRodriguezRicon .
+:autorGabrielaPerez :coautorDe :autorNicolasSimonRuffolo .
+:autorGabrielaPerez :coautorDe :autorSebastianDiaz .
+:autorGabrielaPerez :coautorDe :autorSofiaCelano .
+:autorGeraldoGabrielCrelierDosSantos :coautorDe :autorHenriquePradoDeSaSousa .
+:autorGeraldoGabrielCrelierDosSantos :coautorDe :autorTadeuClasse .
+:autorGermanRuiz :coautorDe :autorJoaquinaNogueira .
+:autorGermanRuiz :coautorDe :autorLeandroAntonelli .
+:autorGiulianaMaltempo :coautorDe :autorGregorioPonce .
+:autorGiulianaMaltempo :coautorDe :autorJuanEscudero .
+:autorGiulianaMaltempo :coautorDe :autorJuanIgnacioGlassman .
+:autorGiulianaMaltempo :coautorDe :autorJulianaAilenDelleVille .
+:autorGiulianaMaltempo :coautorDe :autorLeandroAntonelli .
+:autorGiulianaMaltempo :coautorDe :autorMartinaHubler .
+:autorGiulianaMaltempo :coautorDe :autorMauricioRodriguezRicon .
+:autorGiulianaMaltempo :coautorDe :autorNicolasSimonRuffolo .
+:autorGiulianaMaltempo :coautorDe :autorSebastianDiaz .
+:autorGiulianaMaltempo :coautorDe :autorSofiaCelano .
+:autorGracielaDoraSusanaHadad :coautorDe :autorLeandroAntonelli .
+:autorGracielaHadad :coautorDe :autorJulioCesarSampaioDoPradoLeite .
+:autorGregorioPonce :coautorDe :autorJuanEscudero .
+:autorGregorioPonce :coautorDe :autorJuanIgnacioGlassman .
+:autorGregorioPonce :coautorDe :autorJulianaAilenDelleVille .
+:autorGregorioPonce :coautorDe :autorLeandroAntonelli .
+:autorGregorioPonce :coautorDe :autorMartinaHubler .
+:autorGregorioPonce :coautorDe :autorMauricioRodriguezRicon .
+:autorGregorioPonce :coautorDe :autorNicolasSimonRuffolo .
+:autorGregorioPonce :coautorDe :autorSebastianDiaz .
+:autorGregorioPonce :coautorDe :autorSofiaCelano .
+:autorHenriquePradoDeSaSousa :coautorDe :autorJobsonLuizMassollarDaSilva .
+:autorHenriquePradoDeSaSousa :coautorDe :autorLuisaCaetanoCorreia .
+:autorHenriquePradoDeSaSousa :coautorDe :autorPauloSergioMedeiros .
+:autorHenriquePradoDeSaSousa :coautorDe :autorTadeuClasse .
+:autorHenriqueSousa :coautorDe :autorMarcelaRidao .
+:autorHenriqueSousa :coautorDe :autorPabloThomas .
+:autorHenriqueDeSaSousa :coautorDe :autorMarcosKalinowski .
+:autorHenriqueDeSaSousa :coautorDe :autorRoxanaPortugal .
+:autorHenriqueDeSaSousa :coautorDe :autorTadeuClasse .
+:autorJaelsonCastro :coautorDe :autorMariaLencastre .
+:autorJaelsonCastro :coautorDe :autorOverCausil .
+:autorJaelsonCastro :coautorDe :autorSamuelAnjosNeto .
+:autorJoaquinaNogueira :coautorDe :autorLeandroAntonelli .
+:autorJobsonLuizMassollarDaSilva :coautorDe :autorLuisaCaetanoCorreia .
+:autorJobsonLuizMassollarDaSilva :coautorDe :autorPauloSergioMedeiros .
+:autorJoseAntonioMacedo :coautorDe :autorRamonLuna .
+:autorJoseAntonioMacedo :coautorDe :autorRhenaraOliveira .
+:autorJoseAntonioMacedo :coautorDe :autorRossanaAndrade .
+:autorJoaoMarcosDeMattosBarguil :coautorDe :autorJulioCesarSampaioDoPradoLeite .
+:autorJuanEscudero :coautorDe :autorJuanIgnacioGlassman .
+:autorJuanEscudero :coautorDe :autorJulianaAilenDelleVille .
+:autorJuanEscudero :coautorDe :autorLeandroAntonelli .
+:autorJuanEscudero :coautorDe :autorMartinaHubler .
+:autorJuanEscudero :coautorDe :autorMauricioRodriguezRicon .
+:autorJuanEscudero :coautorDe :autorNicolasSimonRuffolo .
+:autorJuanEscudero :coautorDe :autorSebastianDiaz .
+:autorJuanEscudero :coautorDe :autorSofiaCelano .
+:autorJuanIgnacioGlassman :coautorDe :autorJulianaAilenDelleVille .
+:autorJuanIgnacioGlassman :coautorDe :autorLeandroAntonelli .
+:autorJuanIgnacioGlassman :coautorDe :autorMartinaHubler .
+:autorJuanIgnacioGlassman :coautorDe :autorMauricioRodriguezRicon .
+:autorJuanIgnacioGlassman :coautorDe :autorNicolasSimonRuffolo .
+:autorJuanIgnacioGlassman :coautorDe :autorSebastianDiaz .
+:autorJuanIgnacioGlassman :coautorDe :autorSofiaCelano .
+:autorJuanIgnacioTorres :coautorDe :autorLeandroAntonelli .
+:autorJuanIgnacioTorres :coautorDe :autorPabloThomas .
+:autorJulianaAilenDelleVille :coautorDe :autorLeandroAntonelli .
+:autorJulianaAilenDelleVille :coautorDe :autorMartinaHubler .
+:autorJulianaAilenDelleVille :coautorDe :autorMauricioRodriguezRicon .
+:autorJulianaAilenDelleVille :coautorDe :autorNicolasSimonRuffolo .
+:autorJulianaAilenDelleVille :coautorDe :autorSebastianDiaz .
+:autorJulianaAilenDelleVille :coautorDe :autorSofiaCelano .
+:autorJulioCesarSampaioDoPradoLeite :coautorDe :autorLyreneFSilva .
+:autorJulioCesarSampaioDoPradoLeite :coautorDe :autorRoxanaPortugal .
+:autorKauanCampos :coautorDe :autorRafaelLima .
+:autorKauanCampos :coautorDe :autorVictorSantander .
+:autorLarissaPinheiro :coautorDe :autorRitaSuzanaPitangueiraMaciel .
+:autorLarissaPinheiro :coautorDe :autorSavioFreire .
+:autorLauraTosselli :coautorDe :autorMariaLauraAchetta .
+:autorLauraTosselli :coautorDe :autorMercedesSoria .
+:autorLauraTosselli :coautorDe :autorValeriaOrtizQuiroz .
+:autorLeandroAntonelli :coautorDe :autorMarcMarinhoDeAlcantara .
+:autorLeandroAntonelli :coautorDe :autorMarisaPanizzi .
+:autorLeandroAntonelli :coautorDe :autorMartinaHubler .
+:autorLeandroAntonelli :coautorDe :autorMauricioRodriguezRicon .
+:autorLeandroAntonelli :coautorDe :autorNicolasSimonRuffolo .
+:autorLeandroAntonelli :coautorDe :autorPabloThomas .
+:autorLeandroAntonelli :coautorDe :autorSebastianDiaz .
+:autorLeandroAntonelli :coautorDe :autorSofiaCelano .
+:autorLeandroAntonelli :coautorDe :autorSoniaSantana .
+:autorLuisaCaetanoCorreia :coautorDe :autorPauloSergioMedeiros .
+:autorLyreneFSilva :coautorDe :autorRoxanaPortugal .
+:autorLyreneFernandesDaSilva :coautorDe :autorAlvaroSoaresDosSantos .
+:autorLiviaMancine :coautorDe :autorRenataBraga .
+:autorLiviaMancine :coautorDe :autorRenatoBulcaoNeto .
+:autorMarcelaRidao :coautorDe :autorPabloThomas .
+:autorMarcosKalinowski :coautorDe :autorRoxanaPortugal .
+:autorMarcosKalinowski :coautorDe :autorTadeuClasse .
+:autorMariaLencastre :coautorDe :autorOverCausil .
+:autorMariaLencastre :coautorDe :autorSamuelAnjosNeto .
+:autorMartinaHubler :coautorDe :autorMauricioRodriguezRicon .
+:autorMartinaHubler :coautorDe :autorNicolasSimonRuffolo .
+:autorMartinaHubler :coautorDe :autorSebastianDiaz .
+:autorMartinaHubler :coautorDe :autorSofiaCelano .
+:autorMariaLauraAchetta :coautorDe :autorMercedesSoria .
+:autorMariaLauraAchetta :coautorDe :autorValeriaOrtizQuiroz .
+:autorMauricioRodriguezRicon :coautorDe :autorNicolasSimonRuffolo .
+:autorMauricioRodriguezRicon :coautorDe :autorSebastianDiaz .
+:autorMauricioRodriguezRicon :coautorDe :autorSofiaCelano .
+:autorMercedesSoria :coautorDe :autorValeriaOrtizQuiroz .
+:autorNicolasSimonRuffolo :coautorDe :autorSebastianDiaz .
+:autorNicolasSimonRuffolo :coautorDe :autorSofiaCelano .
+:autorOverCausil :coautorDe :autorSamuelAnjosNeto .
+:autorPabloJavierThomas :coautorDe :autorPatriciaPesado .
+:autorPabloJavierThomas :coautorDe :autorSebastianDapoto .
+:autorPabloThomas :coautorDe :autorSoniaSantana .
+:autorPatriciaPesado :coautorDe :autorSebastianDapoto .
+:autorPauloRobertoSilvaDosReis :coautorDe :autorTassioFerenziniMartinsSirqueira .
+:autorPauloRobertoSilvaDosReis :coautorDe :autorVeraMariaWerneck .
+:autorRafaelLima :coautorDe :autorVictorSantander .
+:autorRamonLuna :coautorDe :autorRhenaraOliveira .
+:autorRamonLuna :coautorDe :autorRossanaAndrade .
+:autorRenataBraga :coautorDe :autorRenatoBulcaoNeto .
+:autorRhenaraOliveira :coautorDe :autorRossanaAndrade .
+:autorRitaSuzanaPitangueiraMaciel :coautorDe :autorSavioFreire .
+:autorRoxanaPortugal :coautorDe :autorTadeuClasse .
+:autorSebastianDiaz :coautorDe :autorSofiaCelano .
+:autorTassioFerenziniMartinsSirqueira :coautorDe :autorVeraMariaWerneck .
+
+# ==========================================================
+# REGRAS SWRL (OWL + SWRL -> Drools)
+# ==========================================================
+
+# ----- Novas propriedades e classes (suporte às regras) -----
+
+:palavraChaveAssociada rdf:type owl:DatatypeProperty ;
+    rdfs:label "palavra-chave associada"@pt ;
+    rdfs:comment "Palavra-chave (em qualquer idioma) que indica que um artigo trata deste tema. Não funcional: um tema pode ter vários sinônimos. Usada pela regra R1."@pt ;
+    rdfs:domain :TemaDePesquisa ;
+    rdfs:range xsd:string .
+
+:temaRelacionadoCom rdf:type owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "tema relacionado com"@pt ;
+    rdfs:comment "Dois temas que aparecem juntos em ao menos um artigo. Derivada pela regra R2."@pt ;
+    rdfs:domain :TemaDePesquisa ;
+    rdfs:range :TemaDePesquisa .
+
+:participouDe rdf:type owl:ObjectProperty ;
+    rdfs:label "participou de"@pt ;
+    rdfs:comment "Instituição com ao menos um autor afiliado em item publicado na edição. Derivada pela regra R4."@pt ;
+    rdfs:domain :Instituicao ;
+    rdfs:range :Edicao .
+
+:temInstituicaoParticipante rdf:type owl:ObjectProperty ;
+    owl:inverseOf :participouDe ;
+    rdfs:label "tem instituição participante"@pt ;
+    rdfs:domain :Edicao ;
+    rdfs:range :Instituicao .
+
+:ArtigoInterinstitucional rdf:type owl:Class ;
+    rdfs:subClassOf :Artigo ;
+    rdfs:label "Artigo Interinstitucional"@pt ;
+    rdfs:comment "Artigo com autores de instituições diferentes. Classe preenchida pela regra R3 (subclasse simples, não definida por equivalência, porque a condição exige junção que DL não expressa)."@pt .
+
+# ----- Tema novo, necessário para as palavras-chave de GORE -----
+:GORE rdf:type owl:NamedIndividual , :TecnicaDeModelagem ;
+    rdfs:label "Engenharia de Requisitos Orientada a Objetivos (GORE)"@pt .
+
+# ----- Palavras-chave associadas a cada tema (tabela usada por R1) -----
+:AplicacoesMoveis :palavraChaveAssociada
+        "Aplicaciones Móviles 3D" .
+:RequisitosNaoFuncionais :palavraChaveAssociada
+        "Requerimientos No Funcionales" ,
+        "Non-Functional Requirements" .
+:LEL :palavraChaveAssociada
+        "LEL" ,
+        "Léxico Extendido del Lenguaje (LEL)" .
+:ElicitacaoDeRequisitos :palavraChaveAssociada
+        "Elicitación" ,
+        "Elicitação de Requisitos" ,
+        "Elicitación de requerimientos" ,
+        "Elicitation Data" .
+:PLN :palavraChaveAssociada
+        "Procesamiento de Lenguaje Natural" ,
+        "NLP" .
+:IAGenerativa :palavraChaveAssociada
+        "Generative Artificial Intelligence" ,
+        "Large Language Models" ,
+        "LLMs" ,
+        "LLM" ,
+        "Large Language Models (LLMs)" ,
+        "Modelos Generativos" .
+:UserStories :palavraChaveAssociada
+        "User Stories" ,
+        "User Story Mapping" .
+:Explicabilidade :palavraChaveAssociada
+        "Explainability" ,
+        "Explainable Artificial Intelligence" ,
+        "AI Transparency" ,
+        "Transparency" .
+:Privacidade :palavraChaveAssociada
+        "Privacy" ,
+        "Privacy-Preserving Systems" ,
+        "Privacy-by-Design" ,
+        "LGPD" ,
+        "GDPR" .
+:RevisaoSistematica :palavraChaveAssociada
+        "Revisão sistemática da literatura" ,
+        "Systematic Mapping Study" .
+:EnsinoDeRE :palavraChaveAssociada
+        "Software Engineering Education" ,
+        "Educación en Ingeniería" .
+:BPM :palavraChaveAssociada
+        "BPMN" ,
+        "Business Process Modeling" .
+:ModelagemConceitual :palavraChaveAssociada
+        "Modelagem conceitual" ,
+        "Modelado Conceptual" .
+:NFRFramework :palavraChaveAssociada
+        "NFR Framework" .
+:CasosDeUso :palavraChaveAssociada
+        "Escenarios" .
+:TestesDeSoftware :palavraChaveAssociada
+        "Ethical Fuzzing" ,
+        "Fairness Testing" .
+:Acessibilidade :palavraChaveAssociada
+        "Accessibility Requirements" .
+:Competencias :palavraChaveAssociada
+        "Aprendizado orientado por competências" .
+:EspecificacaoDeRequisitos :palavraChaveAssociada
+        "Especificación de Requisitos" .
+:MetodosAgeis :palavraChaveAssociada
+        "Métodos Ágeis" ,
+        "Scrum" .
+:GORE :palavraChaveAssociada
+        "Goal-oriented Modeling" ,
+        "Engenharia de requisitos orientada a objetivos (GORE)" .
+
+# ----- differentFrom explícito entre temas -----
+# Necessário para a regra R2 (differentFrom) em motores de regras que não
+# expandem o owl:AllDifferent; semanticamente equivale a declarar os temas distintos.
+:Acessibilidade owl:differentFrom :AplicacoesMoveis .
+:Acessibilidade owl:differentFrom :AquisicaoDeSoftware .
+:Acessibilidade owl:differentFrom :BPM .
+:Acessibilidade owl:differentFrom :CasosDeUso .
+:Acessibilidade owl:differentFrom :CatalogoDeRequisitos .
+:Acessibilidade owl:differentFrom :Competencias .
+:Acessibilidade owl:differentFrom :Consistencia .
+:Acessibilidade owl:differentFrom :ElicitacaoDeRequisitos .
+:Acessibilidade owl:differentFrom :EnsinoDeRE .
+:Acessibilidade owl:differentFrom :EspecificacaoDeRequisitos .
+:Acessibilidade owl:differentFrom :Explicabilidade .
+:Acessibilidade owl:differentFrom :GORE .
+:Acessibilidade owl:differentFrom :IAGenerativa .
+:Acessibilidade owl:differentFrom :KAOS .
+:Acessibilidade owl:differentFrom :LEL .
+:Acessibilidade owl:differentFrom :MetodosAgeis .
+:Acessibilidade owl:differentFrom :ModelagemConceitual .
+:Acessibilidade owl:differentFrom :NFRFramework .
+:Acessibilidade owl:differentFrom :PLN .
+:Acessibilidade owl:differentFrom :Privacidade .
+:Acessibilidade owl:differentFrom :RequisitosNaoFuncionais .
+:Acessibilidade owl:differentFrom :RevisaoSistematica .
+:Acessibilidade owl:differentFrom :TestesDeSoftware .
+:Acessibilidade owl:differentFrom :Tropos .
+:Acessibilidade owl:differentFrom :UserStories .
+:Acessibilidade owl:differentFrom :Volere .
+:Acessibilidade owl:differentFrom :iStar .
+:AplicacoesMoveis owl:differentFrom :AquisicaoDeSoftware .
+:AplicacoesMoveis owl:differentFrom :BPM .
+:AplicacoesMoveis owl:differentFrom :CasosDeUso .
+:AplicacoesMoveis owl:differentFrom :CatalogoDeRequisitos .
+:AplicacoesMoveis owl:differentFrom :Competencias .
+:AplicacoesMoveis owl:differentFrom :Consistencia .
+:AplicacoesMoveis owl:differentFrom :ElicitacaoDeRequisitos .
+:AplicacoesMoveis owl:differentFrom :EnsinoDeRE .
+:AplicacoesMoveis owl:differentFrom :EspecificacaoDeRequisitos .
+:AplicacoesMoveis owl:differentFrom :Explicabilidade .
+:AplicacoesMoveis owl:differentFrom :GORE .
+:AplicacoesMoveis owl:differentFrom :IAGenerativa .
+:AplicacoesMoveis owl:differentFrom :KAOS .
+:AplicacoesMoveis owl:differentFrom :LEL .
+:AplicacoesMoveis owl:differentFrom :MetodosAgeis .
+:AplicacoesMoveis owl:differentFrom :ModelagemConceitual .
+:AplicacoesMoveis owl:differentFrom :NFRFramework .
+:AplicacoesMoveis owl:differentFrom :PLN .
+:AplicacoesMoveis owl:differentFrom :Privacidade .
+:AplicacoesMoveis owl:differentFrom :RequisitosNaoFuncionais .
+:AplicacoesMoveis owl:differentFrom :RevisaoSistematica .
+:AplicacoesMoveis owl:differentFrom :TestesDeSoftware .
+:AplicacoesMoveis owl:differentFrom :Tropos .
+:AplicacoesMoveis owl:differentFrom :UserStories .
+:AplicacoesMoveis owl:differentFrom :Volere .
+:AplicacoesMoveis owl:differentFrom :iStar .
+:AquisicaoDeSoftware owl:differentFrom :BPM .
+:AquisicaoDeSoftware owl:differentFrom :CasosDeUso .
+:AquisicaoDeSoftware owl:differentFrom :CatalogoDeRequisitos .
+:AquisicaoDeSoftware owl:differentFrom :Competencias .
+:AquisicaoDeSoftware owl:differentFrom :Consistencia .
+:AquisicaoDeSoftware owl:differentFrom :ElicitacaoDeRequisitos .
+:AquisicaoDeSoftware owl:differentFrom :EnsinoDeRE .
+:AquisicaoDeSoftware owl:differentFrom :EspecificacaoDeRequisitos .
+:AquisicaoDeSoftware owl:differentFrom :Explicabilidade .
+:AquisicaoDeSoftware owl:differentFrom :GORE .
+:AquisicaoDeSoftware owl:differentFrom :IAGenerativa .
+:AquisicaoDeSoftware owl:differentFrom :KAOS .
+:AquisicaoDeSoftware owl:differentFrom :LEL .
+:AquisicaoDeSoftware owl:differentFrom :MetodosAgeis .
+:AquisicaoDeSoftware owl:differentFrom :ModelagemConceitual .
+:AquisicaoDeSoftware owl:differentFrom :NFRFramework .
+:AquisicaoDeSoftware owl:differentFrom :PLN .
+:AquisicaoDeSoftware owl:differentFrom :Privacidade .
+:AquisicaoDeSoftware owl:differentFrom :RequisitosNaoFuncionais .
+:AquisicaoDeSoftware owl:differentFrom :RevisaoSistematica .
+:AquisicaoDeSoftware owl:differentFrom :TestesDeSoftware .
+:AquisicaoDeSoftware owl:differentFrom :Tropos .
+:AquisicaoDeSoftware owl:differentFrom :UserStories .
+:AquisicaoDeSoftware owl:differentFrom :Volere .
+:AquisicaoDeSoftware owl:differentFrom :iStar .
+:BPM owl:differentFrom :CasosDeUso .
+:BPM owl:differentFrom :CatalogoDeRequisitos .
+:BPM owl:differentFrom :Competencias .
+:BPM owl:differentFrom :Consistencia .
+:BPM owl:differentFrom :ElicitacaoDeRequisitos .
+:BPM owl:differentFrom :EnsinoDeRE .
+:BPM owl:differentFrom :EspecificacaoDeRequisitos .
+:BPM owl:differentFrom :Explicabilidade .
+:BPM owl:differentFrom :GORE .
+:BPM owl:differentFrom :IAGenerativa .
+:BPM owl:differentFrom :KAOS .
+:BPM owl:differentFrom :LEL .
+:BPM owl:differentFrom :MetodosAgeis .
+:BPM owl:differentFrom :ModelagemConceitual .
+:BPM owl:differentFrom :NFRFramework .
+:BPM owl:differentFrom :PLN .
+:BPM owl:differentFrom :Privacidade .
+:BPM owl:differentFrom :RequisitosNaoFuncionais .
+:BPM owl:differentFrom :RevisaoSistematica .
+:BPM owl:differentFrom :TestesDeSoftware .
+:BPM owl:differentFrom :Tropos .
+:BPM owl:differentFrom :UserStories .
+:BPM owl:differentFrom :Volere .
+:BPM owl:differentFrom :iStar .
+:CasosDeUso owl:differentFrom :CatalogoDeRequisitos .
+:CasosDeUso owl:differentFrom :Competencias .
+:CasosDeUso owl:differentFrom :Consistencia .
+:CasosDeUso owl:differentFrom :ElicitacaoDeRequisitos .
+:CasosDeUso owl:differentFrom :EnsinoDeRE .
+:CasosDeUso owl:differentFrom :EspecificacaoDeRequisitos .
+:CasosDeUso owl:differentFrom :Explicabilidade .
+:CasosDeUso owl:differentFrom :GORE .
+:CasosDeUso owl:differentFrom :IAGenerativa .
+:CasosDeUso owl:differentFrom :KAOS .
+:CasosDeUso owl:differentFrom :LEL .
+:CasosDeUso owl:differentFrom :MetodosAgeis .
+:CasosDeUso owl:differentFrom :ModelagemConceitual .
+:CasosDeUso owl:differentFrom :NFRFramework .
+:CasosDeUso owl:differentFrom :PLN .
+:CasosDeUso owl:differentFrom :Privacidade .
+:CasosDeUso owl:differentFrom :RequisitosNaoFuncionais .
+:CasosDeUso owl:differentFrom :RevisaoSistematica .
+:CasosDeUso owl:differentFrom :TestesDeSoftware .
+:CasosDeUso owl:differentFrom :Tropos .
+:CasosDeUso owl:differentFrom :UserStories .
+:CasosDeUso owl:differentFrom :Volere .
+:CasosDeUso owl:differentFrom :iStar .
+:CatalogoDeRequisitos owl:differentFrom :Competencias .
+:CatalogoDeRequisitos owl:differentFrom :Consistencia .
+:CatalogoDeRequisitos owl:differentFrom :ElicitacaoDeRequisitos .
+:CatalogoDeRequisitos owl:differentFrom :EnsinoDeRE .
+:CatalogoDeRequisitos owl:differentFrom :EspecificacaoDeRequisitos .
+:CatalogoDeRequisitos owl:differentFrom :Explicabilidade .
+:CatalogoDeRequisitos owl:differentFrom :GORE .
+:CatalogoDeRequisitos owl:differentFrom :IAGenerativa .
+:CatalogoDeRequisitos owl:differentFrom :KAOS .
+:CatalogoDeRequisitos owl:differentFrom :LEL .
+:CatalogoDeRequisitos owl:differentFrom :MetodosAgeis .
+:CatalogoDeRequisitos owl:differentFrom :ModelagemConceitual .
+:CatalogoDeRequisitos owl:differentFrom :NFRFramework .
+:CatalogoDeRequisitos owl:differentFrom :PLN .
+:CatalogoDeRequisitos owl:differentFrom :Privacidade .
+:CatalogoDeRequisitos owl:differentFrom :RequisitosNaoFuncionais .
+:CatalogoDeRequisitos owl:differentFrom :RevisaoSistematica .
+:CatalogoDeRequisitos owl:differentFrom :TestesDeSoftware .
+:CatalogoDeRequisitos owl:differentFrom :Tropos .
+:CatalogoDeRequisitos owl:differentFrom :UserStories .
+:CatalogoDeRequisitos owl:differentFrom :Volere .
+:CatalogoDeRequisitos owl:differentFrom :iStar .
+:Competencias owl:differentFrom :Consistencia .
+:Competencias owl:differentFrom :ElicitacaoDeRequisitos .
+:Competencias owl:differentFrom :EnsinoDeRE .
+:Competencias owl:differentFrom :EspecificacaoDeRequisitos .
+:Competencias owl:differentFrom :Explicabilidade .
+:Competencias owl:differentFrom :GORE .
+:Competencias owl:differentFrom :IAGenerativa .
+:Competencias owl:differentFrom :KAOS .
+:Competencias owl:differentFrom :LEL .
+:Competencias owl:differentFrom :MetodosAgeis .
+:Competencias owl:differentFrom :ModelagemConceitual .
+:Competencias owl:differentFrom :NFRFramework .
+:Competencias owl:differentFrom :PLN .
+:Competencias owl:differentFrom :Privacidade .
+:Competencias owl:differentFrom :RequisitosNaoFuncionais .
+:Competencias owl:differentFrom :RevisaoSistematica .
+:Competencias owl:differentFrom :TestesDeSoftware .
+:Competencias owl:differentFrom :Tropos .
+:Competencias owl:differentFrom :UserStories .
+:Competencias owl:differentFrom :Volere .
+:Competencias owl:differentFrom :iStar .
+:Consistencia owl:differentFrom :ElicitacaoDeRequisitos .
+:Consistencia owl:differentFrom :EnsinoDeRE .
+:Consistencia owl:differentFrom :EspecificacaoDeRequisitos .
+:Consistencia owl:differentFrom :Explicabilidade .
+:Consistencia owl:differentFrom :GORE .
+:Consistencia owl:differentFrom :IAGenerativa .
+:Consistencia owl:differentFrom :KAOS .
+:Consistencia owl:differentFrom :LEL .
+:Consistencia owl:differentFrom :MetodosAgeis .
+:Consistencia owl:differentFrom :ModelagemConceitual .
+:Consistencia owl:differentFrom :NFRFramework .
+:Consistencia owl:differentFrom :PLN .
+:Consistencia owl:differentFrom :Privacidade .
+:Consistencia owl:differentFrom :RequisitosNaoFuncionais .
+:Consistencia owl:differentFrom :RevisaoSistematica .
+:Consistencia owl:differentFrom :TestesDeSoftware .
+:Consistencia owl:differentFrom :Tropos .
+:Consistencia owl:differentFrom :UserStories .
+:Consistencia owl:differentFrom :Volere .
+:Consistencia owl:differentFrom :iStar .
+:ElicitacaoDeRequisitos owl:differentFrom :EnsinoDeRE .
+:ElicitacaoDeRequisitos owl:differentFrom :EspecificacaoDeRequisitos .
+:ElicitacaoDeRequisitos owl:differentFrom :Explicabilidade .
+:ElicitacaoDeRequisitos owl:differentFrom :GORE .
+:ElicitacaoDeRequisitos owl:differentFrom :IAGenerativa .
+:ElicitacaoDeRequisitos owl:differentFrom :KAOS .
+:ElicitacaoDeRequisitos owl:differentFrom :LEL .
+:ElicitacaoDeRequisitos owl:differentFrom :MetodosAgeis .
+:ElicitacaoDeRequisitos owl:differentFrom :ModelagemConceitual .
+:ElicitacaoDeRequisitos owl:differentFrom :NFRFramework .
+:ElicitacaoDeRequisitos owl:differentFrom :PLN .
+:ElicitacaoDeRequisitos owl:differentFrom :Privacidade .
+:ElicitacaoDeRequisitos owl:differentFrom :RequisitosNaoFuncionais .
+:ElicitacaoDeRequisitos owl:differentFrom :RevisaoSistematica .
+:ElicitacaoDeRequisitos owl:differentFrom :TestesDeSoftware .
+:ElicitacaoDeRequisitos owl:differentFrom :Tropos .
+:ElicitacaoDeRequisitos owl:differentFrom :UserStories .
+:ElicitacaoDeRequisitos owl:differentFrom :Volere .
+:ElicitacaoDeRequisitos owl:differentFrom :iStar .
+:EnsinoDeRE owl:differentFrom :EspecificacaoDeRequisitos .
+:EnsinoDeRE owl:differentFrom :Explicabilidade .
+:EnsinoDeRE owl:differentFrom :GORE .
+:EnsinoDeRE owl:differentFrom :IAGenerativa .
+:EnsinoDeRE owl:differentFrom :KAOS .
+:EnsinoDeRE owl:differentFrom :LEL .
+:EnsinoDeRE owl:differentFrom :MetodosAgeis .
+:EnsinoDeRE owl:differentFrom :ModelagemConceitual .
+:EnsinoDeRE owl:differentFrom :NFRFramework .
+:EnsinoDeRE owl:differentFrom :PLN .
+:EnsinoDeRE owl:differentFrom :Privacidade .
+:EnsinoDeRE owl:differentFrom :RequisitosNaoFuncionais .
+:EnsinoDeRE owl:differentFrom :RevisaoSistematica .
+:EnsinoDeRE owl:differentFrom :TestesDeSoftware .
+:EnsinoDeRE owl:differentFrom :Tropos .
+:EnsinoDeRE owl:differentFrom :UserStories .
+:EnsinoDeRE owl:differentFrom :Volere .
+:EnsinoDeRE owl:differentFrom :iStar .
+:EspecificacaoDeRequisitos owl:differentFrom :Explicabilidade .
+:EspecificacaoDeRequisitos owl:differentFrom :GORE .
+:EspecificacaoDeRequisitos owl:differentFrom :IAGenerativa .
+:EspecificacaoDeRequisitos owl:differentFrom :KAOS .
+:EspecificacaoDeRequisitos owl:differentFrom :LEL .
+:EspecificacaoDeRequisitos owl:differentFrom :MetodosAgeis .
+:EspecificacaoDeRequisitos owl:differentFrom :ModelagemConceitual .
+:EspecificacaoDeRequisitos owl:differentFrom :NFRFramework .
+:EspecificacaoDeRequisitos owl:differentFrom :PLN .
+:EspecificacaoDeRequisitos owl:differentFrom :Privacidade .
+:EspecificacaoDeRequisitos owl:differentFrom :RequisitosNaoFuncionais .
+:EspecificacaoDeRequisitos owl:differentFrom :RevisaoSistematica .
+:EspecificacaoDeRequisitos owl:differentFrom :TestesDeSoftware .
+:EspecificacaoDeRequisitos owl:differentFrom :Tropos .
+:EspecificacaoDeRequisitos owl:differentFrom :UserStories .
+:EspecificacaoDeRequisitos owl:differentFrom :Volere .
+:EspecificacaoDeRequisitos owl:differentFrom :iStar .
+:Explicabilidade owl:differentFrom :GORE .
+:Explicabilidade owl:differentFrom :IAGenerativa .
+:Explicabilidade owl:differentFrom :KAOS .
+:Explicabilidade owl:differentFrom :LEL .
+:Explicabilidade owl:differentFrom :MetodosAgeis .
+:Explicabilidade owl:differentFrom :ModelagemConceitual .
+:Explicabilidade owl:differentFrom :NFRFramework .
+:Explicabilidade owl:differentFrom :PLN .
+:Explicabilidade owl:differentFrom :Privacidade .
+:Explicabilidade owl:differentFrom :RequisitosNaoFuncionais .
+:Explicabilidade owl:differentFrom :RevisaoSistematica .
+:Explicabilidade owl:differentFrom :TestesDeSoftware .
+:Explicabilidade owl:differentFrom :Tropos .
+:Explicabilidade owl:differentFrom :UserStories .
+:Explicabilidade owl:differentFrom :Volere .
+:Explicabilidade owl:differentFrom :iStar .
+:GORE owl:differentFrom :IAGenerativa .
+:GORE owl:differentFrom :KAOS .
+:GORE owl:differentFrom :LEL .
+:GORE owl:differentFrom :MetodosAgeis .
+:GORE owl:differentFrom :ModelagemConceitual .
+:GORE owl:differentFrom :NFRFramework .
+:GORE owl:differentFrom :PLN .
+:GORE owl:differentFrom :Privacidade .
+:GORE owl:differentFrom :RequisitosNaoFuncionais .
+:GORE owl:differentFrom :RevisaoSistematica .
+:GORE owl:differentFrom :TestesDeSoftware .
+:GORE owl:differentFrom :Tropos .
+:GORE owl:differentFrom :UserStories .
+:GORE owl:differentFrom :Volere .
+:GORE owl:differentFrom :iStar .
+:IAGenerativa owl:differentFrom :KAOS .
+:IAGenerativa owl:differentFrom :LEL .
+:IAGenerativa owl:differentFrom :MetodosAgeis .
+:IAGenerativa owl:differentFrom :ModelagemConceitual .
+:IAGenerativa owl:differentFrom :NFRFramework .
+:IAGenerativa owl:differentFrom :PLN .
+:IAGenerativa owl:differentFrom :Privacidade .
+:IAGenerativa owl:differentFrom :RequisitosNaoFuncionais .
+:IAGenerativa owl:differentFrom :RevisaoSistematica .
+:IAGenerativa owl:differentFrom :TestesDeSoftware .
+:IAGenerativa owl:differentFrom :Tropos .
+:IAGenerativa owl:differentFrom :UserStories .
+:IAGenerativa owl:differentFrom :Volere .
+:IAGenerativa owl:differentFrom :iStar .
+:KAOS owl:differentFrom :LEL .
+:KAOS owl:differentFrom :MetodosAgeis .
+:KAOS owl:differentFrom :ModelagemConceitual .
+:KAOS owl:differentFrom :NFRFramework .
+:KAOS owl:differentFrom :PLN .
+:KAOS owl:differentFrom :Privacidade .
+:KAOS owl:differentFrom :RequisitosNaoFuncionais .
+:KAOS owl:differentFrom :RevisaoSistematica .
+:KAOS owl:differentFrom :TestesDeSoftware .
+:KAOS owl:differentFrom :Tropos .
+:KAOS owl:differentFrom :UserStories .
+:KAOS owl:differentFrom :Volere .
+:KAOS owl:differentFrom :iStar .
+:LEL owl:differentFrom :MetodosAgeis .
+:LEL owl:differentFrom :ModelagemConceitual .
+:LEL owl:differentFrom :NFRFramework .
+:LEL owl:differentFrom :PLN .
+:LEL owl:differentFrom :Privacidade .
+:LEL owl:differentFrom :RequisitosNaoFuncionais .
+:LEL owl:differentFrom :RevisaoSistematica .
+:LEL owl:differentFrom :TestesDeSoftware .
+:LEL owl:differentFrom :Tropos .
+:LEL owl:differentFrom :UserStories .
+:LEL owl:differentFrom :Volere .
+:LEL owl:differentFrom :iStar .
+:MetodosAgeis owl:differentFrom :ModelagemConceitual .
+:MetodosAgeis owl:differentFrom :NFRFramework .
+:MetodosAgeis owl:differentFrom :PLN .
+:MetodosAgeis owl:differentFrom :Privacidade .
+:MetodosAgeis owl:differentFrom :RequisitosNaoFuncionais .
+:MetodosAgeis owl:differentFrom :RevisaoSistematica .
+:MetodosAgeis owl:differentFrom :TestesDeSoftware .
+:MetodosAgeis owl:differentFrom :Tropos .
+:MetodosAgeis owl:differentFrom :UserStories .
+:MetodosAgeis owl:differentFrom :Volere .
+:MetodosAgeis owl:differentFrom :iStar .
+:ModelagemConceitual owl:differentFrom :NFRFramework .
+:ModelagemConceitual owl:differentFrom :PLN .
+:ModelagemConceitual owl:differentFrom :Privacidade .
+:ModelagemConceitual owl:differentFrom :RequisitosNaoFuncionais .
+:ModelagemConceitual owl:differentFrom :RevisaoSistematica .
+:ModelagemConceitual owl:differentFrom :TestesDeSoftware .
+:ModelagemConceitual owl:differentFrom :Tropos .
+:ModelagemConceitual owl:differentFrom :UserStories .
+:ModelagemConceitual owl:differentFrom :Volere .
+:ModelagemConceitual owl:differentFrom :iStar .
+:NFRFramework owl:differentFrom :PLN .
+:NFRFramework owl:differentFrom :Privacidade .
+:NFRFramework owl:differentFrom :RequisitosNaoFuncionais .
+:NFRFramework owl:differentFrom :RevisaoSistematica .
+:NFRFramework owl:differentFrom :TestesDeSoftware .
+:NFRFramework owl:differentFrom :Tropos .
+:NFRFramework owl:differentFrom :UserStories .
+:NFRFramework owl:differentFrom :Volere .
+:NFRFramework owl:differentFrom :iStar .
+:PLN owl:differentFrom :Privacidade .
+:PLN owl:differentFrom :RequisitosNaoFuncionais .
+:PLN owl:differentFrom :RevisaoSistematica .
+:PLN owl:differentFrom :TestesDeSoftware .
+:PLN owl:differentFrom :Tropos .
+:PLN owl:differentFrom :UserStories .
+:PLN owl:differentFrom :Volere .
+:PLN owl:differentFrom :iStar .
+:Privacidade owl:differentFrom :RequisitosNaoFuncionais .
+:Privacidade owl:differentFrom :RevisaoSistematica .
+:Privacidade owl:differentFrom :TestesDeSoftware .
+:Privacidade owl:differentFrom :Tropos .
+:Privacidade owl:differentFrom :UserStories .
+:Privacidade owl:differentFrom :Volere .
+:Privacidade owl:differentFrom :iStar .
+:RequisitosNaoFuncionais owl:differentFrom :RevisaoSistematica .
+:RequisitosNaoFuncionais owl:differentFrom :TestesDeSoftware .
+:RequisitosNaoFuncionais owl:differentFrom :Tropos .
+:RequisitosNaoFuncionais owl:differentFrom :UserStories .
+:RequisitosNaoFuncionais owl:differentFrom :Volere .
+:RequisitosNaoFuncionais owl:differentFrom :iStar .
+:RevisaoSistematica owl:differentFrom :TestesDeSoftware .
+:RevisaoSistematica owl:differentFrom :Tropos .
+:RevisaoSistematica owl:differentFrom :UserStories .
+:RevisaoSistematica owl:differentFrom :Volere .
+:RevisaoSistematica owl:differentFrom :iStar .
+:TestesDeSoftware owl:differentFrom :Tropos .
+:TestesDeSoftware owl:differentFrom :UserStories .
+:TestesDeSoftware owl:differentFrom :Volere .
+:TestesDeSoftware owl:differentFrom :iStar .
+:Tropos owl:differentFrom :UserStories .
+:Tropos owl:differentFrom :Volere .
+:Tropos owl:differentFrom :iStar .
+:UserStories owl:differentFrom :Volere .
+:UserStories owl:differentFrom :iStar .
+:Volere owl:differentFrom :iStar .
+
+# ---- R1: TemaPorPalavraChave ----
+<urn:swrl#a> rdf:type swrl:Variable .
+<urn:swrl#k> rdf:type swrl:Variable .
+<urn:swrl#t> rdf:type swrl:Variable .
+_:R1 rdf:type swrl:Imp ;
+    rdfs:label "R1_TemaPorPalavraChave" ;
+    rdfs:comment "Deriva abordaTecnica a partir das palavras-chave do artigo: se o artigo tem uma palavra-chave igual a uma palavraChaveAssociada de um tema, ele aborda esse tema. Une sinônimos em PT, EN e ES."@pt ;
+    swrla:isRuleEnabled "true"^^xsd:boolean ;
+    swrl:body _:R1b1 ;
+    swrl:head _:R1h1 .
+_:R1b1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:ClassAtom ; swrl:classPredicate :Artigo ; swrl:argument1 <urn:swrl#a> ] ;
+    rdf:rest _:R1b2 .
+_:R1b2 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:DatavaluedPropertyAtom ; swrl:propertyPredicate :palavraChave ; swrl:argument1 <urn:swrl#a> ; swrl:argument2 <urn:swrl#k> ] ;
+    rdf:rest _:R1b3 .
+_:R1b3 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:DatavaluedPropertyAtom ; swrl:propertyPredicate :palavraChaveAssociada ; swrl:argument1 <urn:swrl#t> ; swrl:argument2 <urn:swrl#k> ] ;
+    rdf:rest rdf:nil .
+_:R1h1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :abordaTecnica ; swrl:argument1 <urn:swrl#a> ; swrl:argument2 <urn:swrl#t> ] ;
+    rdf:rest rdf:nil .
+
+# ---- R2: CoocorrenciaDeTemas ----
+<urn:swrl#a> rdf:type swrl:Variable .
+<urn:swrl#t1> rdf:type swrl:Variable .
+<urn:swrl#t2> rdf:type swrl:Variable .
+_:R2 rdf:type swrl:Imp ;
+    rdfs:label "R2_CoocorrenciaDeTemas" ;
+    rdfs:comment "Dois temas distintos abordados pelo mesmo artigo são temaRelacionadoCom. Depende de R1 (abordaTecnica derivada)."@pt ;
+    swrla:isRuleEnabled "true"^^xsd:boolean ;
+    swrl:body _:R2b1 ;
+    swrl:head _:R2h1 .
+_:R2b1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:ClassAtom ; swrl:classPredicate :Artigo ; swrl:argument1 <urn:swrl#a> ] ;
+    rdf:rest _:R2b2 .
+_:R2b2 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :abordaTecnica ; swrl:argument1 <urn:swrl#a> ; swrl:argument2 <urn:swrl#t1> ] ;
+    rdf:rest _:R2b3 .
+_:R2b3 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :abordaTecnica ; swrl:argument1 <urn:swrl#a> ; swrl:argument2 <urn:swrl#t2> ] ;
+    rdf:rest _:R2b4 .
+_:R2b4 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:DifferentIndividualsAtom ; swrl:argument1 <urn:swrl#t1> ; swrl:argument2 <urn:swrl#t2> ] ;
+    rdf:rest rdf:nil .
+_:R2h1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :temaRelacionadoCom ; swrl:argument1 <urn:swrl#t1> ; swrl:argument2 <urn:swrl#t2> ] ;
+    rdf:rest rdf:nil .
+
+# ---- R3: ArtigoInterinstitucional ----
+<urn:swrl#a> rdf:type swrl:Variable .
+<urn:swrl#i> rdf:type swrl:Variable .
+<urn:swrl#j> rdf:type swrl:Variable .
+<urn:swrl#ni> rdf:type swrl:Variable .
+<urn:swrl#nj> rdf:type swrl:Variable .
+<urn:swrl#nx> rdf:type swrl:Variable .
+<urn:swrl#ny> rdf:type swrl:Variable .
+<urn:swrl#x> rdf:type swrl:Variable .
+<urn:swrl#y> rdf:type swrl:Variable .
+_:R3 rdf:type swrl:Imp ;
+    rdfs:label "R3_ArtigoInterinstitucional" ;
+    rdfs:comment "Artigo com dois autores distintos (nomes diferentes) afiliados a instituições de nomes diferentes. Autores com dupla afiliação podem inflar a contagem, pois SWRL não tem negação."@pt ;
+    swrla:isRuleEnabled "true"^^xsd:boolean ;
+    swrl:body _:R3b1 ;
+    swrl:head _:R3h1 .
+_:R3b1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:ClassAtom ; swrl:classPredicate :Artigo ; swrl:argument1 <urn:swrl#a> ] ;
+    rdf:rest _:R3b2 .
+_:R3b2 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :temAutor ; swrl:argument1 <urn:swrl#a> ; swrl:argument2 <urn:swrl#x> ] ;
+    rdf:rest _:R3b3 .
+_:R3b3 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :temAutor ; swrl:argument1 <urn:swrl#a> ; swrl:argument2 <urn:swrl#y> ] ;
+    rdf:rest _:R3b4 .
+_:R3b4 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:DatavaluedPropertyAtom ; swrl:propertyPredicate :nome ; swrl:argument1 <urn:swrl#x> ; swrl:argument2 <urn:swrl#nx> ] ;
+    rdf:rest _:R3b5 .
+_:R3b5 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:DatavaluedPropertyAtom ; swrl:propertyPredicate :nome ; swrl:argument1 <urn:swrl#y> ; swrl:argument2 <urn:swrl#ny> ] ;
+    rdf:rest _:R3b6 .
+_:R3b6 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:BuiltinAtom ; swrl:builtin swrlb:notEqual ; swrl:arguments ( <urn:swrl#nx> <urn:swrl#ny> ) ] ;
+    rdf:rest _:R3b7 .
+_:R3b7 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :afiliadoA ; swrl:argument1 <urn:swrl#x> ; swrl:argument2 <urn:swrl#i> ] ;
+    rdf:rest _:R3b8 .
+_:R3b8 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :afiliadoA ; swrl:argument1 <urn:swrl#y> ; swrl:argument2 <urn:swrl#j> ] ;
+    rdf:rest _:R3b9 .
+_:R3b9 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:DatavaluedPropertyAtom ; swrl:propertyPredicate :nomeInstituicao ; swrl:argument1 <urn:swrl#i> ; swrl:argument2 <urn:swrl#ni> ] ;
+    rdf:rest _:R3b10 .
+_:R3b10 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:DatavaluedPropertyAtom ; swrl:propertyPredicate :nomeInstituicao ; swrl:argument1 <urn:swrl#j> ; swrl:argument2 <urn:swrl#nj> ] ;
+    rdf:rest _:R3b11 .
+_:R3b11 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:BuiltinAtom ; swrl:builtin swrlb:notEqual ; swrl:arguments ( <urn:swrl#ni> <urn:swrl#nj> ) ] ;
+    rdf:rest rdf:nil .
+_:R3h1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:ClassAtom ; swrl:classPredicate :ArtigoInterinstitucional ; swrl:argument1 <urn:swrl#a> ] ;
+    rdf:rest rdf:nil .
+
+# ---- R4: InstituicaoParticipouDaEdicao ----
+<urn:swrl#e> rdf:type swrl:Variable .
+<urn:swrl#inst> rdf:type swrl:Variable .
+<urn:swrl#it> rdf:type swrl:Variable .
+<urn:swrl#x> rdf:type swrl:Variable .
+_:R4 rdf:type swrl:Imp ;
+    rdfs:label "R4_InstituicaoParticipouDaEdicao" ;
+    rdfs:comment "Se um autor afiliado a uma instituição assina um item publicado em uma edição, a instituição participouDe essa edição (junção de 3 relações; também expressável em OWL 2 por propertyChainAxiom, mas aqui fica como regra SWRL)."@pt ;
+    swrla:isRuleEnabled "true"^^xsd:boolean ;
+    swrl:body _:R4b1 ;
+    swrl:head _:R4h1 .
+_:R4b1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :temAutor ; swrl:argument1 <urn:swrl#it> ; swrl:argument2 <urn:swrl#x> ] ;
+    rdf:rest _:R4b2 .
+_:R4b2 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :afiliadoA ; swrl:argument1 <urn:swrl#x> ; swrl:argument2 <urn:swrl#inst> ] ;
+    rdf:rest _:R4b3 .
+_:R4b3 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :publicadoEm ; swrl:argument1 <urn:swrl#it> ; swrl:argument2 <urn:swrl#e> ] ;
+    rdf:rest rdf:nil .
+_:R4h1 rdf:type swrl:AtomList ;
+    rdf:first [ rdf:type swrl:IndividualPropertyAtom ; swrl:propertyPredicate :participouDe ; swrl:argument1 <urn:swrl#inst> ; swrl:argument2 <urn:swrl#e> ] ;
+    rdf:rest rdf:nil .
+
+
+# ==========================================================
+# HIERARQUIA EXPLÍCITA DAS CLASSES DEFINIDAS (v7)
+# ==========================================================
+# Cada classe abaixo já é subclasse de Artigo por ser definida como
+# "Artigo e (restrição)". O raciocinador DL deduz isso sozinho; aqui o fato
+# é declarado também de forma explícita para que visualizadores e motores de
+# regras simples (que não classificam por equivalência) mostrem a hierarquia.
+:ArtigoSobreModelagem rdfs:subClassOf :Artigo .
+:ArtigoSobreElicitacao rdfs:subClassOf :Artigo .
+:ArtigoColaborativo rdfs:subClassOf :Artigo .
+:ArtigoDeAutoriaUnica rdfs:subClassOf :Artigo .
+:ArtigoMultitematico rdfs:subClassOf :Artigo .
+:ArtigoEmPortugues rdfs:subClassOf :Artigo .
+:ArtigoEmLinguaEstrangeira rdfs:subClassOf :Artigo .
+
+# ==========================================================
+# NOTAS SOBRE MODELAGEM
+# ==========================================================
+# 1. Prefácio e Tutorial não possuem DOI na planilha WER2026 e, por isso,
+#    não são instâncias de Artigo; são ItemEspecial.
+# 2. doi é funcional e Artigo possui cardinalidade exatamente 1 de DOI.
+# 3. palavraChave NÃO é funcional: um artigo pode ter várias palavras-chave.
+# 4. afiliadoA NÃO é funcional: um autor pode ter várias instituições.
+# 5. possuiAutor é a inversa de afiliadoA; uma Instituicao tem pelo menos um autor.
+# 6. localidade, isbn e issn são funcionais por edição, mas seus valores podem
+#    ser repetidos entre diferentes edições.
+# 7. A classificação de TipoDeContribuicao é opcional, pois não é fornecida
+#    pela planilha; "Tipo" da planilha é modelado por pertenceATrilha.
+# 8. Regras SWRL R1-R4 estão na seção "REGRAS SWRL". R1 preenche abordaTecnica a
+#    partir de palavraChave + palavraChaveAssociada; R2-R4 derivam temaRelacionadoCom,
+#    ArtigoInterinstitucional e participouDe.
+# 9. GORE foi adicionado como tema porque 2 artigos têm palavras-chave de GORE.
+# 10. owl:differentFrom entre temas é explícito apenas para o motor de regras.
+# 11. (v7) As 7 classes definidas por equivalência receberam subClassOf Artigo explícito,
+#     e o comentário da R4 foi corrigido (a junção também é expressável por propertyChainAxiom).
+# 12. Nós anônimos (blank nodes) são parte normal do OWL: restrições, intersectionOf,
+#     AllDifferent e regras SWRL são serializados assim. Visualizadores devem interpretá-los,
+#     não desenhá-los como nós do grafo.
