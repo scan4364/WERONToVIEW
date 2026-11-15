@@ -9,9 +9,11 @@ import {
   ChevronDown, 
   ChevronUp, 
   ShieldAlert,
-  Info
+  Info,
+  Sparkles,
+  AlertTriangle
 } from 'lucide-react';
-import { OntologyModel } from '../types/ontology';
+import { AxiomBlock, OntologyModel } from '../types/ontology';
 
 interface SummaryMetricsProps {
   model: OntologyModel;
@@ -24,7 +26,11 @@ export const SummaryMetrics: React.FC<SummaryMetricsProps> = ({
   isDetailed,
   onNavigateToTab
 }) => {
-  const [showDistinctExpanded, setShowDistinctExpanded] = useState(false);
+  const [expandedBlockId, setExpandedBlockId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedBlockId(prev => prev === id ? null : id);
+  };
 
   const metricsCards = [
     {
@@ -80,7 +86,7 @@ export const SummaryMetrics: React.FC<SummaryMetricsProps> = ({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm mb-6 transition-colors">
       
-      {/* Ontology Header (RF-10) */}
+      {/* Ontology Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
         <div>
           <div className="flex items-center gap-2">
@@ -92,7 +98,6 @@ export const SummaryMetrics: React.FC<SummaryMetricsProps> = ({
             </span>
           </div>
           
-          {/* Detailed vs Simple IRI (RF-13, RF-20) */}
           {isDetailed && (
             <p className="text-xs font-mono text-slate-400 mt-1 break-all">
               IRI: {model.metadata.iri}
@@ -107,7 +112,7 @@ export const SummaryMetrics: React.FC<SummaryMetricsProps> = ({
         </div>
       </div>
 
-      {/* Protégé Metrics Grid (RF-10) */}
+      {/* Protégé Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-6">
         {metricsCards.map((card, idx) => {
           const Icon = card.icon;
@@ -131,51 +136,75 @@ export const SummaryMetrics: React.FC<SummaryMetricsProps> = ({
         })}
       </div>
 
-      {/* Mass Distinction Collapsed Block (RF-32) */}
-      {(model.differentFromPairsCount > 0 || model.allDifferentGroups.length > 0) && (
-        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-            <div className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300">
-              <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0" />
-              <span>
-                <strong>Axiomas de distinção mútua (RF-32):</strong>{' '}
-                {model.allDifferentGroups.length > 0 && (
-                  <span>{model.allDifferentGroups.length} grupos AllDifferent / AllDisjointClasses</span>
-                )}
-                {model.differentFromPairsCount > 0 && (
-                  <span>
-                    {model.allDifferentGroups.length > 0 ? ', além de ' : ''}
-                    <strong>{model.differentFromPairsCount}</strong> axiomas de distinção <code className="font-mono text-amber-600 dark:text-amber-400">differentFrom</code> entre indivíduos (por exemplo, temas de pesquisa).
-                  </span>
-                )}
-              </span>
+      {/* RF-16.2 & Critérios de aceitação: Lista de Axiomas de Disjunção e Distinção (5 blocos, uma linha cada) */}
+      {model.axiomBlocks.length > 0 && (
+        <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-amber-500" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                Axiomas de Disjunção e Distinção Mútua ({model.axiomBlocks.length} blocos)
+              </h4>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setShowDistinctExpanded(!showDistinctExpanded)}
-              className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-400 hover:underline shrink-0 ml-4"
-            >
-              <span>{showDistinctExpanded ? 'Recolher' : 'Expandir detalhes'}</span>
-              {showDistinctExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
+            <span className="text-[11px] text-slate-400">
+              Colapsados em uma linha cada (RF-16.2 / RF-32)
+            </span>
           </div>
 
-          {showDistinctExpanded && (
-            <div className="mt-3 p-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-300 max-h-48 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700">
-              {model.allDifferentGroups.map((g, idx) => (
-                <div key={idx} className="py-2">
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">Grupo {idx + 1} ({g.members.length} membros):</span>
-                  <p className="mt-1 font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                    {g.memberLabels.join(', ')}
-                  </p>
+          <div className="space-y-2">
+            {model.axiomBlocks.map((block) => {
+              const isExpanded = expandedBlockId === block.id;
+
+              return (
+                <div
+                  key={block.id}
+                  className="bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-xs transition"
+                >
+                  {/* Linha única colapsada */}
+                  <div
+                    onClick={() => toggleExpand(block.id)}
+                    className="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  >
+                    <div className="flex items-center gap-2.5 truncate">
+                      {block.type === 'unknownBlankNode' ? (
+                        <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                      ) : (
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                      )}
+                      
+                      <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        {block.title}
+                      </span>
+
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium hidden sm:inline">
+                        {block.type === 'disjointClasses' ? 'owl:AllDisjointClasses' : (block.type === 'allDifferent' ? 'owl:AllDifferent' : (block.type === 'massDifferentFrom' ? 'owl:differentFrom' : 'Aviso RF-16.5'))}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 font-medium text-primary-600 dark:text-primary-400 shrink-0 ml-3 text-[11px]"
+                    >
+                      <span>{isExpanded ? 'Recolher' : 'Expandir'}</span>
+                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+
+                  {/* Detalhes expandidos */}
+                  {isExpanded && (
+                    <div className="p-3.5 pt-0 border-t border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-300">
+                      <p className="text-[11px] mb-2 text-slate-500 dark:text-slate-400">
+                        {block.summary}
+                      </p>
+                      <div className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 max-h-40 overflow-y-auto font-mono text-[11px] leading-relaxed">
+                        {block.memberLabels.join(' · ')}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ))}
-              <div className="py-2 text-slate-500 dark:text-slate-400">
-                Os axiomas individuais de <code>differentFrom</code> entre indivíduos foram agrupados para evitar poluição visual e lentidão na renderização (conforme RF-32).
-              </div>
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

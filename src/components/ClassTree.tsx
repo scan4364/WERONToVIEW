@@ -81,8 +81,8 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 
         {/* Defined Class Badge */}
         {isDefined && (
-          <span className="px-1.5 py-0.2 text-[9px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-800" title="Classe Definida (com axioma de equivalência)">
-            ≡ def
+          <span className="px-1.5 py-0.2 text-[9px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 rounded border border-amber-200 dark:border-amber-800" title={cls.inferredSuperClasses && cls.inferredSuperClasses.length > 0 ? "Classe Definida ligada estruturalmente via intersectionOf (RF-19)" : "Classe Definida (com axioma de equivalência)"}>
+            {cls.inferredSuperClasses && cls.inferredSuperClasses.length > 0 ? '≡ def (inf)' : '≡ def'}
           </span>
         )}
 

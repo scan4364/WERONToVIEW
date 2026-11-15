@@ -50,6 +50,7 @@ export interface OntologyClass {
   label: string;
   comment?: string;
   superClasses: string[];
+  inferredSuperClasses?: string[]; // RF-19: inferida a partir de equivalentClass com intersectionOf
   subClasses: string[];
   equivalentClasses: ClassExpression[];
   restrictions: RestrictionExpr[];
@@ -77,6 +78,7 @@ export interface OntologyProperty {
   isIrreflexive?: boolean;
   inverseOf?: string;
   inverseOfLabel?: string;
+  isInverse?: boolean; // Se é propriedade inversa de outra (RF-18)
   propertyChain?: string[];
   propertyChainLabels?: string[];
   rawTriples: RDFTriple[];
@@ -118,7 +120,7 @@ export interface SWRLAtom {
   predicate?: string;
   predicateLabel?: string;
   builtin?: string;
-  args: string[]; // e.g. ["?a", "?t"]
+  args: string[];
 }
 
 export interface SWRLRule {
@@ -132,6 +134,15 @@ export interface SWRLRule {
   usedClasses: string[];
   usedProperties: string[];
   rawTriples: RDFTriple[];
+}
+
+export interface AxiomBlock {
+  id: string;
+  type: 'disjointClasses' | 'allDifferent' | 'massDifferentFrom' | 'unknownBlankNode';
+  title: string;
+  summary: string;
+  members: string[];
+  memberLabels: string[];
 }
 
 export interface AllDifferentGroup {
@@ -148,6 +159,7 @@ export interface OntologyModel {
   individuals: Record<string, OntologyIndividual>;
   swrlRules: SWRLRule[];
   allDifferentGroups: AllDifferentGroup[];
+  axiomBlocks: AxiomBlock[]; // RF-16.2: Blocos de disjunção, distinção e avisos
   differentFromPairsCount: number;
   prefixes: Record<string, string>;
   rawTriples: RDFTriple[];

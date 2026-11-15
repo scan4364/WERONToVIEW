@@ -46,13 +46,22 @@ export function parseTurtle(content: string): Promise<ParseResult> {
 
         if (quad) {
           const isLiteral = quad.object.termType === 'Literal';
-          const isBnode = quad.object.termType === 'BlankNode';
+          const isObjBnode = quad.object.termType === 'BlankNode';
+          const isSubjBnode = quad.subject.termType === 'BlankNode';
+
+          const subjVal = isSubjBnode
+            ? (quad.subject.value.startsWith('_:') ? quad.subject.value : `_:${quad.subject.value}`)
+            : quad.subject.value;
+
+          const objVal = isObjBnode
+            ? (quad.object.value.startsWith('_:') ? quad.object.value : `_:${quad.object.value}`)
+            : quad.object.value;
           
           triples.push({
-            subject: quad.subject.value,
+            subject: subjVal,
             predicate: quad.predicate.value,
-            object: quad.object.value,
-            objectType: isLiteral ? 'literal' : (isBnode ? 'bnode' : 'iri'),
+            object: objVal,
+            objectType: isLiteral ? 'literal' : (isObjBnode ? 'bnode' : 'iri'),
             datatype: isLiteral ? quad.object.datatype?.value : undefined,
             lang: isLiteral ? quad.object.language : undefined
           });

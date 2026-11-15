@@ -1,5 +1,6 @@
 import {
   AllDifferentGroup,
+  AxiomBlock,
   ClassExpression,
   IndividualDataAssertion,
   IndividualPropertyAssertion,
@@ -85,6 +86,21 @@ const SWRL_ARGUMENT2 = 'http://www.w3.org/2003/11/swrl#argument2';
 const SWRL_BUILTIN = 'http://www.w3.org/2003/11/swrl#builtin';
 const SWRL_ARGUMENTS = 'http://www.w3.org/2003/11/swrl#arguments';
 
+/**
+ * RF-16: Helper robusto para identificar nós anônimos (blank nodes).
+ * Blank nodes nunca devem ser desenhados no grafo como nós de classe ou indivíduo.
+ */
+export function isBlankNode(iri: string): boolean {
+  if (!iri) return false;
+  return (
+    iri.startsWith('_:') ||
+    iri.startsWith('n3-') ||
+    iri.startsWith('genid') ||
+    iri.startsWith('bnode_') ||
+    (!iri.includes(':') && !iri.startsWith('http://') && !iri.startsWith('https://'))
+  );
+}
+
 export function getLocalName(iri: string): string {
   if (!iri) return '';
   if (iri.includes('#')) {
@@ -97,16 +113,12 @@ export function getLocalName(iri: string): string {
 export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<string, string> = {}): OntologyModel {
   // Maps for fast indexing
   const spo = new Map<string, Map<string, RDFTriple[]>>();
-  const pos = new Map<string, Map<string, RDFTriple[]>>();
 
   const addTriple = (t: RDFTriple) => {
     if (!spo.has(t.subject)) spo.set(t.subject, new Map());
     const sMap = spo.get(t.subject)!;
     if (!sMap.has(t.predicate)) sMap.set(t.predicate, []);
     sMap.get(t.predicate)!.push(t);
-
-    const poKey = `${t.predicate}|${t.object}`;
-    if (!pos.has(poKey)) pos.set(poKey, new Map());
   };
 
   triples.forEach(addTriple);
@@ -129,7 +141,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     return objs[0];
   };
 
-  // Helper: resolve rdf:List
+  // RF-16.4: Helper para resolver listas RDF completas até rdf:nil
   const resolveRdfList = (headNode: string): string[] => {
     const items: string[] = [];
     let current = headNode;
@@ -148,11 +160,10 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     return items;
   };
 
-  // Label finder with PT-BR preference (RF-13)
+  // RF-13: Rótulos em português por padrão (@pt)
   const getPreferredLabel = (iri: string): string => {
     const labelTriples = getTriples(iri, RDFS_LABEL);
     if (labelTriples.length > 0) {
-      // Find pt or pt-BR
       const ptLabel = labelTriples.find(t => t.lang === 'pt' || t.lang === 'pt-br' || t.lang === 'pt-BR');
       if (ptLabel) return ptLabel.object;
       const noLang = labelTriples.find(t => !t.lang);
@@ -172,7 +183,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     return undefined;
   };
 
-  // Helper: parse restriction
+  // RF-16.3: Nó anônimo como restrição é lido como expressão de classe
   const parseRestrictionNode = (nodeIri: string): RestrictionExpr | undefined => {
     const prop = getFirstObject(nodeIri, OWL_ON_PROPERTY);
     if (!prop) return undefined;
@@ -279,7 +290,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     return restr;
   };
 
-  // Helper: parse ClassExpression
+  // RF-16.3: Expressões de classe complexas
   const parseClassExpression = (nodeIri: string, depth = 0): ClassExpression => {
     if (depth > 10) return { type: 'named', classIri: nodeIri, classLabel: getPreferredLabel(nodeIri) };
 
@@ -317,7 +328,6 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
       };
     }
 
-    // Default: named class
     return {
       type: 'named',
       classIri: nodeIri,
@@ -325,7 +335,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     };
   };
 
-  // Find ontology metadata
+  // Localizar metadados da ontologia
   let ontologyIri = '';
   triples.forEach(t => {
     if (t.predicate === RDF_TYPE && t.object === OWL_ONTOLOGY) {
@@ -333,7 +343,6 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     }
   });
   if (!ontologyIri) {
-    // Fallback: search common base or first named subject
     ontologyIri = Object.values(prefixes)[0] || 'http://exemplo.org/ontologia';
   }
 
@@ -343,21 +352,21 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     comment: getComment(ontologyIri)
   };
 
-  // Collect classes
+  // RF-16: Coletar classes nomeadas (NUNCA incluir nós anônimos como classe nomeada)
   const classes: Record<string, OntologyClass> = {};
   const isClassNode = (iri: string) => {
     const types = getObjects(iri, RDF_TYPE);
     return types.includes(OWL_CLASS) || types.includes('http://www.w3.org/2000/01/rdf-schema#Class');
   };
 
-  // Scan all subjects for classes
   spo.forEach((_, subj) => {
-    if (isClassNode(subj) && !subj.startsWith('_:') && !subj.startsWith('genid') && !subj.startsWith('urn:swrl')) {
+    if (isClassNode(subj) && !isBlankNode(subj) && !subj.startsWith('urn:swrl')) {
       classes[subj] = {
         iri: subj,
         label: getPreferredLabel(subj),
         comment: getComment(subj),
         superClasses: [],
+        inferredSuperClasses: [],
         subClasses: [],
         equivalentClasses: [],
         restrictions: [],
@@ -369,7 +378,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     }
   });
 
-  // Collect properties
+  // Coletar propriedades
   const properties: Record<string, OntologyProperty> = {};
   spo.forEach((_, subj) => {
     const types = getObjects(subj, RDF_TYPE);
@@ -377,15 +386,16 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     const isDataProp = types.includes(OWL_DATATYPE_PROPERTY);
     const isAnnotProp = types.includes(OWL_ANNOTATION_PROPERTY);
 
-    if ((isObjProp || isDataProp || isAnnotProp) && !subj.startsWith('_:')) {
+    if ((isObjProp || isDataProp || isAnnotProp) && !isBlankNode(subj)) {
       const rawDomain = getObjects(subj, RDFS_DOMAIN);
       const rawRange = getObjects(subj, RDFS_RANGE);
 
-      const namedDomains = rawDomain.filter(d => !d.startsWith('_:'));
-      const namedRanges = rawRange.filter(r => !r.startsWith('_:'));
+      // RF-16: Domínios e ranges nomeados excluem nós anônimos
+      const namedDomains = rawDomain.filter(d => !isBlankNode(d));
+      const namedRanges = rawRange.filter(r => !isBlankNode(r));
 
-      const domainExprs = rawDomain.filter(d => d.startsWith('_:')).map(d => parseClassExpression(d));
-      const rangeExprs = rawRange.filter(r => r.startsWith('_:')).map(r => parseClassExpression(r));
+      const domainExprs = rawDomain.filter(d => isBlankNode(d)).map(d => parseClassExpression(d));
+      const rangeExprs = rawRange.filter(r => isBlankNode(r)).map(r => parseClassExpression(r));
 
       const inv = getFirstObject(subj, OWL_INVERSE_OF);
       const chainNode = getFirstObject(subj, OWL_PROPERTY_CHAIN_AXIOM);
@@ -415,6 +425,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
         isIrreflexive: types.includes(OWL_IRREFLEXIVE),
         inverseOf: inv,
         inverseOfLabel: inv ? getPreferredLabel(inv) : undefined,
+        isInverse: false,
         propertyChain: propChain,
         propertyChainLabels: propChainLabels,
         rawTriples: getTriples(subj)
@@ -422,25 +433,38 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     }
   });
 
-  // Populate Class Superclasses, Subclasses, Equivalences, Restrictions
+  // RF-18: Identificar quais propriedades são inversas
+  Object.values(properties).forEach(p => {
+    if (p.inverseOf && properties[p.inverseOf]) {
+      // Convenção: propriedades com prefixo 'e' ou 'tem' inverso marcadas
+      const local = getLocalName(p.iri).toLowerCase();
+      if (local.startsWith('e') && local.length > 2 && local[1] === local[1].toUpperCase()) {
+        p.isInverse = true;
+      } else if (local.startsWith('possui') || local.startsWith('teminstituicao') || local.startsWith('autor')) {
+        p.isInverse = true;
+      }
+    }
+  });
+
+  // Preencher superclasses, subclasses, equivalências e restrições
   Object.keys(classes).forEach(classIri => {
     const cls = classes[classIri];
 
-    // subClassOf
+    // subClassOf declaradas
     const superNodes = getObjects(classIri, RDFS_SUBCLASS_OF);
     superNodes.forEach(sNode => {
-      if (classes[sNode]) {
-        cls.superClasses.push(sNode);
+      if (classes[sNode] && !isBlankNode(sNode)) {
+        if (!cls.superClasses.includes(sNode)) {
+          cls.superClasses.push(sNode);
+        }
         if (!classes[sNode].subClasses.includes(classIri)) {
           classes[sNode].subClasses.push(classIri);
         }
-      } else {
-        // May be restriction or complex expression
+      } else if (isBlankNode(sNode)) {
         const expr = parseClassExpression(sNode);
         if (expr.type === 'restriction' && expr.restriction) {
           cls.restrictions.push(expr.restriction);
         } else if (expr.type === 'intersection') {
-          // If intersection contains restrictions, extract them
           expr.operands?.forEach(op => {
             if (op.type === 'restriction' && op.restriction) {
               cls.restrictions.push(op.restriction);
@@ -468,10 +492,35 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
 
     // disjointWith
     const disjointNodes = getObjects(classIri, OWL_DISJOINT_WITH);
-    cls.disjointWith.push(...disjointNodes);
+    cls.disjointWith.push(...disjointNodes.filter(d => !isBlankNode(d)));
   });
 
-  // Parse SWRL rules
+  // RF-19: Inferência estrutural - se C ≡ D ⊓ (...) então C subClassOf D
+  // Garante que as 7 classes definidas (ArtigoColaborativo, etc.) fiquem ligadas a Artigo
+  Object.keys(classes).forEach(classIri => {
+    const cls = classes[classIri];
+    cls.equivalentClasses.forEach(eqExpr => {
+      if (eqExpr.type === 'intersection' && eqExpr.operands) {
+        eqExpr.operands.forEach(op => {
+          if (op.type === 'named' && op.classIri && classes[op.classIri]) {
+            const superIri = op.classIri;
+            if (!cls.superClasses.includes(superIri)) {
+              cls.superClasses.push(superIri);
+            }
+            if (!cls.inferredSuperClasses) cls.inferredSuperClasses = [];
+            if (!cls.inferredSuperClasses.includes(superIri)) {
+              cls.inferredSuperClasses.push(superIri);
+            }
+            if (!classes[superIri].subClasses.includes(classIri)) {
+              classes[superIri].subClasses.push(classIri);
+            }
+          }
+        });
+      }
+    });
+  });
+
+  // RF-16.1: Regras SWRL
   const swrlRules: SWRLRule[] = [];
   spo.forEach((_, subj) => {
     const types = getObjects(subj, RDF_TYPE);
@@ -563,29 +612,56 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     }
   });
 
-  // AllDifferent and differentFrom axioms (RF-32)
+  // RF-16.2 & Critérios de aceitação: 5 blocos de disjunção e distinção em uma linha cada
   const allDifferentGroups: AllDifferentGroup[] = [];
+  const axiomBlocks: AxiomBlock[] = [];
   let differentFromPairsCount = 0;
+  const massDifferentIndividuals = new Set<string>();
 
+  // Detectar AllDisjointClasses e AllDifferent
   spo.forEach((_, subj) => {
     const types = getObjects(subj, RDF_TYPE);
-    if (types.includes(OWL_ALL_DIFFERENT) || types.includes(OWL_ALL_DISJOINT_CLASSES)) {
+    const isDisjointClasses = types.includes(OWL_ALL_DISJOINT_CLASSES);
+    const isAllDifferent = types.includes(OWL_ALL_DIFFERENT);
+
+    if (isDisjointClasses || isAllDifferent) {
       const membersNode = getFirstObject(subj, OWL_MEMBERS) || getFirstObject(subj, OWL_DISTINCT_MEMBERS);
       if (membersNode) {
         const members = resolveRdfList(membersNode);
-        allDifferentGroups.push({
-          id: subj,
-          members: members,
-          memberLabels: members.map(m => getPreferredLabel(m))
-        });
+        const memberLabels = members.map(m => getPreferredLabel(m));
+
+        if (isDisjointClasses) {
+          axiomBlocks.push({
+            id: subj,
+            type: 'disjointClasses',
+            title: `${members.length} classes mutuamente disjuntas`,
+            summary: `Axioma owl:AllDisjointClasses contendo ${members.length} classes: ${memberLabels.join(', ')}`,
+            members: members,
+            memberLabels: memberLabels
+          });
+        } else {
+          allDifferentGroups.push({
+            id: subj,
+            members: members,
+            memberLabels: memberLabels
+          });
+          axiomBlocks.push({
+            id: subj,
+            type: 'allDifferent',
+            title: `${members.length} indivíduos mutuamente distintos`,
+            summary: `Axioma owl:AllDifferent contendo ${members.length} indivíduos: ${memberLabels.join(', ')}`,
+            members: members,
+            memberLabels: memberLabels
+          });
+        }
       }
     }
   });
 
-  // Collect Individuals
+  // Coletar Indivíduos
   const individuals: Record<string, OntologyIndividual> = {};
   spo.forEach((sMap, subj) => {
-    if (subj.startsWith('_:') || subj.startsWith('genid') || subj.startsWith('urn:swrl')) return;
+    if (isBlankNode(subj) || subj.startsWith('urn:swrl')) return;
     if (classes[subj] || properties[subj] || subj === ontologyIri) return;
 
     const types = getObjects(subj, RDF_TYPE);
@@ -593,7 +669,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     const isTypedInd = types.some(t => classes[t] !== undefined);
 
     if (isExplicitInd || isTypedInd) {
-      const indTypes = types.filter(t => t !== OWL_NAMED_INDIVIDUAL && !t.startsWith('_:'));
+      const indTypes = types.filter(t => t !== OWL_NAMED_INDIVIDUAL && !isBlankNode(t));
       const objAssertions: IndividualPropertyAssertion[] = [];
       const dataAssertions: IndividualDataAssertion[] = [];
       const diffFromList: string[] = [];
@@ -601,7 +677,11 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
       sMap.forEach((tList, pred) => {
         if (pred === RDF_TYPE) return;
         if (pred === OWL_DIFFERENT_FROM) {
-          tList.forEach(t => diffFromList.push(t.object));
+          tList.forEach(t => {
+            diffFromList.push(t.object);
+            massDifferentIndividuals.add(subj);
+            massDifferentIndividuals.add(t.object);
+          });
           return;
         }
 
@@ -617,7 +697,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
               datatype: t.datatype,
               lang: t.lang
             });
-          } else {
+          } else if (!isBlankNode(t.object)) {
             objAssertions.push({
               propertyIri: pred,
               propertyLabel: pLabel,
@@ -643,13 +723,59 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
 
       differentFromPairsCount += diffFromList.length;
 
-      // Assign to class individual lists
       indTypes.forEach(tIri => {
         if (classes[tIri]) {
           classes[tIri].individuals.push(subj);
           classes[tIri].individualCount++;
         }
       });
+    }
+  });
+
+  // RF-16.2: Se houver axiomas differentFrom em massa, criar o 5º bloco
+  if (differentFromPairsCount > 0) {
+    const diffMembers = Array.from(massDifferentIndividuals);
+    const diffLabels = diffMembers.map(m => getPreferredLabel(m));
+    axiomBlocks.push({
+      id: 'mass-different-from-block',
+      type: 'massDifferentFrom',
+      title: `${diffMembers.length} indivíduos mutuamente distintos (${differentFromPairsCount} axiomas differentFrom)`,
+      summary: `Conjunto de ${differentFromPairsCount} axiomas owl:differentFrom entre ${diffMembers.length} indivíduos (por exemplo, temas de pesquisa).`,
+      members: diffMembers,
+      memberLabels: diffLabels
+    });
+  }
+
+  // RF-16.5: Verificar se há nós anônimos de tipo desconhecido
+  const recognizedBnodeTypes = new Set([
+    OWL_RESTRICTION,
+    OWL_CLASS,
+    OWL_ALL_DISJOINT_CLASSES,
+    OWL_ALL_DIFFERENT,
+    SWRL_IMP,
+    'http://www.w3.org/2003/11/swrl#AtomList',
+    SWRL_CLASS_ATOM,
+    SWRL_INDIVIDUAL_PROPERTY_ATOM,
+    SWRL_DATAVALUED_PROPERTY_ATOM,
+    SWRL_BUILTIN_ATOM,
+    SWRL_DIFFERENT_INDIVIDUALS_ATOM,
+    SWRL_SAME_INDIVIDUAL_ATOM
+  ]);
+
+  spo.forEach((_, subj) => {
+    if (isBlankNode(subj)) {
+      const types = getObjects(subj, RDF_TYPE);
+      const isRecognized = types.some(t => recognizedBnodeTypes.has(t)) || getFirstObject(subj, RDF_FIRST) !== undefined;
+      if (!isRecognized && types.length > 0) {
+        axiomBlocks.push({
+          id: subj,
+          type: 'unknownBlankNode',
+          title: `Aviso: Nó anônimo de tipo desconhecido (${types.map(getLocalName).join(', ')})`,
+          summary: `Nó anônimo ${subj} não desenhado no grafo para manter a clareza da visualização (RF-16.5).`,
+          members: [subj],
+          memberLabels: [subj]
+        });
+      }
     }
   });
 
@@ -665,7 +791,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     swrlRuleCount: swrlRules.length,
     tripleCount: triples.length,
     annotationPropertyCount: annotPropCount,
-    disjointAxiomCount: allDifferentGroups.length + Math.round(differentFromPairsCount / 2)
+    disjointAxiomCount: axiomBlocks.length
   };
 
   return {
@@ -676,6 +802,7 @@ export function extractOntologyModel(triples: RDFTriple[], prefixes: Record<stri
     individuals,
     swrlRules,
     allDifferentGroups,
+    axiomBlocks,
     differentFromPairsCount,
     prefixes,
     rawTriples: triples
