@@ -19,6 +19,8 @@ import { OntologyModel } from '../types/ontology';
 
 interface HeaderProps {
   model: OntologyModel | null;
+  viewMode: 'portal' | 'expert';
+  setViewMode: (v: 'portal' | 'expert') => void;
   isDetailed: boolean;
   setIsDetailed: (v: boolean) => void;
   darkMode: boolean;
@@ -30,6 +32,8 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   model,
+  viewMode,
+  setViewMode,
   isDetailed,
   setIsDetailed,
   darkMode,
@@ -223,12 +227,46 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* Action Buttons: Simple/Detailed Toggle, Export, Theme */}
+          {/* Action Buttons: Mode Switcher, Simple/Detailed Toggle, Export, Theme */}
           <div className="flex items-center gap-2">
-            
-            {/* Simple ↔ Detailed Global Switch (RF-20) */}
+
+            {/* Mode Switcher: User Portal vs Specialist OWL */}
             {model && (
-              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('portal')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
+                    viewMode === 'portal'
+                      ? 'bg-primary-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                  title="Modo simplificado para usuários comuns: busca por tópicos, artigos e autores"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Busca por Tópicos</span>
+                  <span className="sm:hidden">Busca</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('expert')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
+                    viewMode === 'expert'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                  title="Modo especialista: classes, axiomas DL, regras SWRL, métricas Protégé e grafo"
+                >
+                  <Boxes className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Inspetor OWL</span>
+                  <span className="sm:hidden">OWL</span>
+                </button>
+              </div>
+            )}
+            
+            {/* Simple ↔ Detailed Global Switch (RF-20) - Only in Expert Mode */}
+            {model && viewMode === 'expert' && (
+              <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
                 <button
                   type="button"
                   onClick={() => setIsDetailed(false)}
@@ -261,11 +299,11 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenExport}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition"
                 title="Exportar resumo e tabelas (Markdown & CSV)"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Exportar</span>
+                <span>Exportar</span>
               </button>
             )}
 

@@ -11,6 +11,14 @@ O **WerOntoView** é uma ferramenta web moderna e 100% estática para exploraç�
 
 ## 🚀 Principais Funcionalidades
 
+### 0. Subsite / Portal do Usuário Comum (Busca Semântica por Tópicos)
+- **Interface Descomplicada:** Desenvolvida especificamente para qualquer pessoa usuária navegar facilmente pelas publicações científicas do WER sem precisar conhecer lógica de descrições ou OWL.
+- **Busca por Tópicos de Pesquisa:** Pílulas e filtros dinâmicos pelos temas (Elicitação de Requisitos, IA Generativa, Requisitos Não-Funcionais, Métodos Ágeis, Acessibilidade, etc.).
+- **Inferência Semântica Automática (Regra SWRL R1):** A ferramenta cruza as palavras-chave do artigo com as palavras-chave associadas aos temas, descobrindo e exibindo automaticamente todas as conexões entre artigos e tópicos!
+- **Cards de Publicações Completos:** Títulos em destaque, links diretos para os PDFs oficiais nos proceedings do WER, DOIs, autores e afiliações institucionais.
+- **Guia Didático e Explicação Semântica:** Modal interativo que explica em linguagem natural *"Por que este artigo aparece aqui?"* e uma seção didática ilustrada ensinando o que é uma ontologia para o público em geral.
+- **Alternância Fluida:** Alterne com apenas 1 clique entre o **Modo Usuário (Busca por Tópicos)** e o **Modo Especialista (Inspetor OWL DL)** na barra superior.
+
 ### 1. Entrada de Arquivos e Privacidade Total (RNF-01, RF-01 a RF-04)
 - **100% Client-Side no Navegador:** Nenhum arquivo é transmitido a servidores externos; todo o processamento e parse ocorrem no próprio navegador da pessoa usuária.
 - **Upload via Botão e Drag-and-Drop:** Suporte nativo para Turtle (`.ttl`) e RDF/XML (`.owl`, `.rdf`) com detecção automática do formato pelo conteúdo.

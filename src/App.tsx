@@ -25,10 +25,14 @@ import { OntologyGraph } from './components/OntologyGraph';
 import { DiffViewer } from './components/DiffViewer';
 import { DetailModal } from './components/DetailModal';
 import { ExportModal } from './components/ExportModal';
+import { UserPortal } from './components/UserPortal';
 
 export const App: React.FC = () => {
   // Theme
   const [darkMode, setDarkMode] = useState(false);
+
+  // View Mode: 'portal' (Usuário comum / Busca por Tópicos) vs 'expert' (Inspetor OWL DL)
+  const [viewMode, setViewMode] = useState<'portal' | 'expert'>('portal');
 
   // Ontology states
   const [baseModel, setBaseModel] = useState<OntologyModel | null>(null);
@@ -121,6 +125,8 @@ export const App: React.FC = () => {
       {/* Top Header */}
       <Header
         model={baseModel}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
         isDetailed={isDetailed}
         setIsDetailed={setIsDetailed}
         darkMode={darkMode}
@@ -143,16 +149,23 @@ export const App: React.FC = () => {
         onClearCompare={handleClearCompare}
       />
 
-      {/* Main Workspace */}
+      {/* Main Workspace: User Portal (Busca por Tópicos) vs Specialist Inspector (OWL DL) */}
       {baseModel && (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col">
-          
-          {/* Summary Cards & Distinction Axiom Alert (RF-10, RF-32) */}
-          <SummaryMetrics
+        viewMode === 'portal' ? (
+          <UserPortal
             model={baseModel}
-            isDetailed={isDetailed}
-            onNavigateToTab={tab => setActiveTab(tab)}
+            onOpenSpecialistView={() => setViewMode('expert')}
+            onSelectEntity={(type, iri) => setSelectedEntity({ type, iri })}
           />
+        ) : (
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col">
+            
+            {/* Summary Cards & Distinction Axiom Alert (RF-10, RF-32) */}
+            <SummaryMetrics
+              model={baseModel}
+              isDetailed={isDetailed}
+              onNavigateToTab={tab => setActiveTab(tab)}
+            />
 
           {/* Navigation Tabs Bar */}
           <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 mb-6 overflow-x-auto pb-1 text-xs">
@@ -318,6 +331,7 @@ export const App: React.FC = () => {
             )}
           </div>
         </main>
+        )
       )}
 
       {/* Entity Inspector Detail Modal (RF-21, RF-22, RF-30) */}
