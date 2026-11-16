@@ -139,25 +139,35 @@ Como a aplicação é 100% estática e roda no navegador:
 
 ---
 
-## 📚 Relatórios Técnicos e Artigo Científico (PDF, Word .docx & Markdown)
+## 📚 Artigo Principal e Relatórios Técnicos (PDF, Word .docx & Markdown)
 
-Toda a fundamentação formal do projeto encontra-se documentada no diretório [`docs/`](docs/), disponível nos formatos **PDF diagramado para publicação com fórmulas matemáticas (LaTeX/MathJax SVG)**, **Microsoft Word (`.docx`)** e **Markdown (`.md`)**:
+Toda a fundamentação formal do projeto encontra-se documentada no diretório [`docs/`](docs/), disponível nos formatos **PDF diagramado para publicação com fórmulas matemáticas vetoriais (LaTeX/MathJax SVG)**, **Microsoft Word (`.docx`)** e **Markdown (`.md`)**:
 
-1. **Relatório Técnico da Ontologia (Artigo):**  
-   *Modelagem e Inferência Semântica no Catálogo de Publicações do WER 2026: Uma Ontologia em OWL 2 DL com Regras SWRL.*  
-   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/1_Relatorio_Tecnico_Ontologia_WER.pdf) | 📘 [Versão Word (.docx)](docs/1_Relatorio_Tecnico_Ontologia_WER.docx) | 📄 [Versão Markdown](docs/1_Relatorio_Tecnico_Ontologia_WER.md)
+### ⭐ Artigo Científico Principal (Versão Consolidada v5):
+> **Modelagem Ontológica em OWL 2 DL e Inferência SWRL no Catálogo de Publicações do WER 2026: Concepção Teórica, Avaliação Empírica e Operacionalização via Ferramenta WerOntoView**  
+> *Autores: Samuel Celso Anjos Neto, Pedro Henrique Dantas | Orientador: Prof. Dr. Frederico Luiz Gonçalves de Freitas (CIn / UFPE)*  
+> Combina o aprofundamento formal da ontologia em OWL 2 DL ($\mathcal{SROIQ}^{(D)}$) e regras SWRL com a operacionalização prática da ferramenta WerOntoView.  
+> 📕 [**Versão em PDF de Alta Resolução (78 fórmulas vetoriais)**](docs/5_Artigo_Principal_Ontologia_WER_WerOntoView.pdf) | 📘 [Versão Word (.docx)](docs/5_Artigo_Principal_Ontologia_WER_WerOntoView.docx) | 📄 [Versão Markdown](docs/5_Artigo_Principal_Ontologia_WER_WerOntoView.md)
+
+---
+
+### 📑 Relatórios Técnicos Temáticos Especializados:
+
+1. **Relatório Técnico da Ontologia (Foco Exclusivo em OWL 2 DL & SWRL):**  
+   *Modelagem e Inferência Semântica no Catálogo de Publicações do WER 2026.*  
+   📕 [Versão PDF](docs/1_Relatorio_Tecnico_Ontologia_WER.pdf) | 📘 [Versão Word (.docx)](docs/1_Relatorio_Tecnico_Ontologia_WER.docx) | 📄 [Versão Markdown](docs/1_Relatorio_Tecnico_Ontologia_WER.md)
 
 2. **Relatório Técnico da Arquitetura em ADL ACME:**  
    *Arquitetura de Software do WerOntoView: Especificação Formal em ADL ACME.*  
-   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.pdf) | 📘 [Versão Word (.docx)](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.docx) | 📄 [Versão Markdown](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md)
+   📕 [Versão PDF](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.pdf) | 📘 [Versão Word (.docx)](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.docx) | 📄 [Versão Markdown](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md)
 
 3. **Documento de Requisitos da Ferramenta (IEEE 830 / ISO 29148):**  
    *Especificação de Requisitos de Software (SRS).*  
-   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/3_Documento_Requisitos_Ferramenta.pdf) | 📘 [Versão Word (.docx)](docs/3_Documento_Requisitos_Ferramenta.docx) | 📄 [Versão Markdown](docs/3_Documento_Requisitos_Ferramenta.md)
+   📕 [Versão PDF](docs/3_Documento_Requisitos_Ferramenta.pdf) | 📘 [Versão Word (.docx)](docs/3_Documento_Requisitos_Ferramenta.docx) | 📄 [Versão Markdown](docs/3_Documento_Requisitos_Ferramenta.md)
 
-4. **Artigo Completo Unificado:**  
+4. **Artigo Abrangente de Engenharia e Arquitetura:**  
    *WerOntoView: Engenharia de Requisitos, Modelagem Ontológica OWL 2 / SWRL e Arquitetura Formal em ADL ACME.*  
-   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/4_Artigo_Completo_Unificado_WerOntoView.pdf) | 📘 [Versão Word (.docx)](docs/4_Artigo_Completo_Unificado_WerOntoView.docx) | 📄 [Versão Markdown](docs/4_Artigo_Completo_Unificado_WerOntoView.md)
+   📕 [Versão PDF](docs/4_Artigo_Completo_Unificado_WerOntoView.pdf) | 📘 [Versão Word (.docx)](docs/4_Artigo_Completo_Unificado_WerOntoView.docx) | 📄 [Versão Markdown](docs/4_Artigo_Completo_Unificado_WerOntoView.md)
 
 ---
 

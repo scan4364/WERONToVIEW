@@ -14,6 +14,11 @@ DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 FILES = [
     {
+        "md": os.path.join(DOCS_DIR, "5_Artigo_Principal_Ontologia_WER_WerOntoView.md"),
+        "pdf": os.path.join(DOCS_DIR, "5_Artigo_Principal_Ontologia_WER_WerOntoView.pdf"),
+        "title": "Modelagem Ontológica em OWL 2 DL e Inferência SWRL no Catálogo WER 2026 e Operacionalização via WerOntoView"
+    },
+    {
         "md": os.path.join(DOCS_DIR, "1_Relatorio_Tecnico_Ontologia_WER.md"),
         "pdf": os.path.join(DOCS_DIR, "1_Relatorio_Tecnico_Ontologia_WER.pdf"),
         "title": "Modelagem e Inferência Semântica no Catálogo de Publicações do WER 2026"

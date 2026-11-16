@@ -301,6 +301,7 @@ def convert_md_to_docx(md_path, docx_path):
 if __name__ == '__main__':
     docs_dir = os.path.dirname(os.path.abspath(__file__))
     files = [
+        "5_Artigo_Principal_Ontologia_WER_WerOntoView",
         "1_Relatorio_Tecnico_Ontologia_WER",
         "2_Relatorio_Tecnico_Arquitetura_ADL_ACME",
         "3_Documento_Requisitos_Ferramenta",
