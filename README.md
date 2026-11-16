@@ -139,21 +139,25 @@ Como a aplicação é 100% estática e roda no navegador:
 
 ---
 
-## 📚 Relatórios Técnicos e Artigo Científico
+## 📚 Relatórios Técnicos e Artigo Científico (Markdown & Word .docx)
 
-Toda a fundamentação formal do projeto encontra-se documentada no diretório [`docs/`](docs/):
+Toda a fundamentação formal do projeto encontra-se documentada no diretório [`docs/`](docs/), disponível nos formatos **Markdown (`.md`)** e **Microsoft Word (`.docx`)**:
 
-1. **[Relatório Técnico da Ontologia (Artigo)](docs/1_Relatorio_Tecnico_Ontologia_WER.md):**  
-   *Modelagem e Inferência Semântica no Catálogo de Publicações do WER 2026: Uma Ontologia em OWL 2 DL com Regras SWRL.* Abrange a axiomatização em Lógica de Descrições, Competency Questions, classes definidas, restrições qualificadas, disjunções e as 4 regras SWRL com o motor Drools.
+1. **Relatório Técnico da Ontologia (Artigo):**  
+   *Modelagem e Inferência Semântica no Catálogo de Publicações do WER 2026: Uma Ontologia em OWL 2 DL com Regras SWRL.*  
+   📄 [Versão Markdown](docs/1_Relatorio_Tecnico_Ontologia_WER.md) | 📘 [Versão Word (.docx)](docs/1_Relatorio_Tecnico_Ontologia_WER.docx)
 
-2. **[Relatório Técnico da Arquitetura em ADL ACME](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md):**  
-   *Arquitetura de Software do WerOntoView: Especificação Formal em ADL ACME.* Descreve a arquitetura estática *zero-backend*, com modelagem formal de componentes, portas, conectores, papéis (*roles*), *attachments*, invariantes de qualidade e estratégia de *code-splitting*.
+2. **Relatório Técnico da Arquitetura em ADL ACME:**  
+   *Arquitetura de Software do WerOntoView: Especificação Formal em ADL ACME.*  
+   📄 [Versão Markdown](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md) | 📘 [Versão Word (.docx)](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.docx)
 
-3. **[Documento de Requisitos da Ferramenta (IEEE 830 / ISO 29148)](docs/3_Documento_Requisitos_Ferramenta.md):**  
-   *Especificação de Requisitos de Software (SRS).* Documentação de engenharia de requisitos categorizada (RF-01 a RF-64, incluindo RF-16 a RF-19 e RNF-01 a RNF-08), matriz de rastreabilidade e critérios de homologação.
+3. **Documento de Requisitos da Ferramenta (IEEE 830 / ISO 29148):**  
+   *Especificação de Requisitos de Software (SRS).*  
+   📄 [Versão Markdown](docs/3_Documento_Requisitos_Ferramenta.md) | 📘 [Versão Word (.docx)](docs/3_Documento_Requisitos_Ferramenta.docx)
 
-4. **[Artigo Completo Unificado](docs/4_Artigo_Completo_Unificado_WerOntoView.md):**  
-   *WerOntoView: Engenharia de Requisitos, Modelagem Ontológica OWL 2 / SWRL e Arquitetura Formal em ADL ACME.* Artigo científico completo consolidando ontologia, engenharia de requisitos, arquitetura ACME e avaliação experimental.
+4. **Artigo Completo Unificado:**  
+   *WerOntoView: Engenharia de Requisitos, Modelagem Ontológica OWL 2 / SWRL e Arquitetura Formal em ADL ACME.*  
+   📄 [Versão Markdown](docs/4_Artigo_Completo_Unificado_WerOntoView.md) | 📘 [Versão Word (.docx)](docs/4_Artigo_Completo_Unificado_WerOntoView.docx)
 
 ---
 
