@@ -1,0 +1,213 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 580" width="100%" height="100%">
+  <defs>
+    <style>
+      .sys-box { fill: #f8fafc; stroke: #3b82f6; stroke-width: 2.5; stroke-dasharray: 6,4; rx: 12; }
+      .comp-box { fill: #ffffff; stroke: #1e40af; stroke-width: 2; rx: 8; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06)); }
+      .comp-header { fill: #1e3a8a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; font-weight: bold; }
+      .comp-body { fill: #475569; font-family: "Cascadia Code", Consolas, monospace; font-size: 10px; }
+      .port { fill: #2563eb; stroke: #ffffff; stroke-width: 1.5; }
+      .port-label { fill: #1e293b; font-family: "Cascadia Code", Consolas, monospace; font-size: 9px; }
+      .conn-box { fill: #fef3c7; stroke: #d97706; stroke-width: 1.8; rx: 6; }
+      .conn-label { fill: #92400e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; font-weight: bold; text-anchor: middle; }
+      .role-label { fill: #b45309; font-family: "Cascadia Code", Consolas, monospace; font-size: 8.5px; }
+      .edge { stroke: #64748b; stroke-width: 1.8; fill: none; }
+      .edge-arrow { fill: #64748b; }
+      .edge-dashed { stroke: #d97706; stroke-width: 1.8; stroke-dasharray: 4,3; fill: none; }
+      .legend-text { fill: #334155; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" class="edge-arrow" />
+    </marker>
+    <marker id="arrow-conn" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706" />
+    </marker>
+  </defs>
+
+  <!-- Limite do Sistema WerOntoView (ADL ACME) -->
+  <rect x="20" y="20" width="920" height="540" class="sys-box" />
+  <text x="40" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="bold" fill="#1e3a8a">
+    System WerOntoView : WebSemanticViewerFamily (Formal ADL ACME Architecture)
+  </text>
+  <text x="40" y="63" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#64748b">
+    Configuração Client-Side Reativa com Componentes, Portas, Conectores e Papéis
+  </text>
+
+  <!-- COMPONENTE 1: ParserSubsystem -->
+  <g transform="translate(50, 95)">
+    <rect width="210" height="150" class="comp-box" />
+    <rect width="210" height="30" fill="#eff6ff" rx="8" />
+    <text x="12" y="20" class="comp-header">Component ParserSubsystem</text>
+    <text x="12" y="48" class="comp-body">Property engine: "N3.js + DOM"</text>
+    <text x="12" y="64" class="comp-body">Property inputFormats: TTL, RDF</text>
+    <text x="12" y="80" class="comp-body">Property thread: MainWorker</text>
+    <text x="12" y="96" class="comp-body">Property zeroBackend: true</text>
+    
+    <!-- Portas de Entrada -->
+    <rect x="-6" y="45" width="12" height="12" class="port" />
+    <text x="10" y="40" class="port-label" fill="#2563eb">Port turtleInput</text>
+
+    <rect x="-6" y="85" width="12" height="12" class="port" />
+    <text x="10" y="80" class="port-label" fill="#2563eb">Port rdfXmlInput</text>
+
+    <!-- Porta de Saída -->
+    <rect x="204" y="65" width="12" height="12" class="port" />
+    <text x="125" y="60" class="port-label" fill="#2563eb">Port astOutput</text>
+  </g>
+
+  <!-- INPUTS EXTERNOS -->
+  <path d="M 10 145 L 44 145" class="edge" marker-end="url(#arrow)" />
+  <text x="14" y="137" font-family="sans-serif" font-size="9" fill="#475569">.ttl</text>
+
+  <path d="M 10 185 L 44 185" class="edge" marker-end="url(#arrow)" />
+  <text x="14" y="177" font-family="sans-serif" font-size="9" fill="#475569">.owl</text>
+
+  <!-- CONECTOR 1: SemanticPipe -->
+  <g transform="translate(305, 140)">
+    <rect width="90" height="60" class="conn-box" />
+    <text x="45" y="26" class="conn-label">Connector</text>
+    <text x="45" y="42" class="conn-label" font-size="10">SemanticPipe</text>
+    <!-- Roles -->
+    <text x="5" y="55" class="role-label">Role:src</text>
+    <text x="50" y="55" class="role-label">Role:sink</text>
+  </g>
+
+  <!-- Attachment Parser -> SemanticPipe -->
+  <path d="M 266 166 L 305 166" class="edge-dashed" marker-end="url(#arrow-conn)" />
+
+  <!-- COMPONENTE 2: ReasoningBridge (Motor de Inferência e Regras) -->
+  <g transform="translate(440, 85)">
+    <rect width="240" height="175" class="comp-box" />
+    <rect width="240" height="30" fill="#eff6ff" rx="8" />
+    <text x="12" y="20" class="comp-header">Component ReasoningBridge</text>
+    <text x="12" y="46" class="comp-body">Property dlReasoning: Structural</text>
+    <text x="12" y="60" class="comp-body">Property rf16_blankNodes: Filtered</text>
+    <text x="12" y="74" class="comp-body">Property rf19_subClassOf: Inferred</text>
+    <text x="12" y="88" class="comp-body">Property swrlMatching: R1 ClientSide</text>
+    <text x="12" y="102" class="comp-body">Property diffEngine: Enabled</text>
+
+    <!-- Porta Entrada -->
+    <rect x="-6" y="80" width="12" height="12" class="port" />
+    <text x="10" y="75" class="port-label">Port rawAstIn</text>
+
+    <!-- Portas Saída -->
+    <rect x="234" y="40" width="12" height="12" class="port" />
+    <text x="130" y="35" class="port-label">Port inferredGraphOut</text>
+
+    <rect x="234" y="90" width="12" height="12" class="port" />
+    <text x="135" y="85" class="port-label">Port axiomDataOut</text>
+
+    <rect x="234" y="140" width="12" height="12" class="port" />
+    <text x="145" y="135" class="port-label">Port swrlRulesOut</text>
+  </g>
+
+  <!-- Attachment SemanticPipe -> ReasoningBridge -->
+  <path d="M 395 166 L 434 166" class="edge-dashed" marker-end="url(#arrow-conn)" />
+
+  <!-- CONECTOR 2: EventBus / StateBridge -->
+  <g transform="translate(720, 140)">
+    <rect width="85" height="60" class="conn-box" />
+    <text x="42" y="26" class="conn-label">Connector</text>
+    <text x="42" y="42" class="conn-label" font-size="10">StateBridge</text>
+    <text x="5" y="55" class="role-label">Role:pub</text>
+    <text x="50" y="55" class="role-label">Role:sub</text>
+  </g>
+
+  <!-- Attachment ReasoningBridge -> StateBridge -->
+  <path d="M 680 170 L 720 170" class="edge-dashed" marker-end="url(#arrow-conn)" />
+
+  <!-- CAMADA DE APRESENTAÇÃO E SERVIÇOS VISUAIS -->
+
+  <!-- COMPONENTE 3: GraphRenderer (Cytoscape.js) -->
+  <g transform="translate(50, 310)">
+    <rect width="250" height="145" class="comp-box" />
+    <rect width="250" height="30" fill="#f0fdf4" rx="8" />
+    <text x="12" y="20" class="comp-header" fill="#166534">Component GraphRenderer</text>
+    <text x="12" y="48" class="comp-body">Property engine: "Cytoscape.js"</text>
+    <text x="12" y="64" class="comp-body">Property rf17_autoWidth: max(90, l*8.2+28)</text>
+    <text x="12" y="80" class="comp-body">Property rf18_edgeGrouping: Enabled</text>
+    <text x="12" y="96" class="comp-body">Property rf19_dashedEdges: Enabled</text>
+    <text x="12" y="112" class="comp-body">Property exportFormats: PNG, JSON</text>
+
+    <rect x="120" y="-6" width="12" height="12" class="port" />
+    <text x="80" y="16" class="port-label">Port graphDataIn</text>
+
+    <rect x="244" y="65" width="12" height="12" class="port" />
+    <text x="145" y="60" class="port-label">Port visualEventsOut</text>
+  </g>
+
+  <!-- COMPONENTE 4: AxiomInspector & DiffEngine -->
+  <g transform="translate(350, 310)">
+    <rect width="250" height="145" class="comp-box" />
+    <rect width="250" height="30" fill="#fdf4ff" rx="8" />
+    <text x="12" y="20" class="comp-header" fill="#86198f">Component AxiomInspector</text>
+    <text x="12" y="48" class="comp-body">Property rf30_manchesterPT: Active</text>
+    <text x="12" y="64" class="comp-body">Property rf31_dlFormal: Active (KaTeX)</text>
+    <text x="12" y="80" class="comp-body">Property rf16_2_collapseDiff: Active</text>
+    <text x="12" y="96" class="comp-body">Property rf40_diffInspector: Enabled</text>
+    <text x="12" y="112" class="comp-body">Property exportReports: Markdown, CSV</text>
+
+    <rect x="120" y="-6" width="12" height="12" class="port" />
+    <text x="75" y="16" class="port-label">Port axiomDataIn</text>
+
+    <rect x="244" y="65" width="12" height="12" class="port" />
+    <text x="145" y="60" class="port-label">Port inspectorOut</text>
+  </g>
+
+  <!-- COMPONENTE 5: UserPortalSubsystem (Busca Semântica por Tópicos) -->
+  <g transform="translate(650, 310)">
+    <rect width="250" height="145" class="comp-box" />
+    <rect width="250" height="30" fill="#fff7ed" rx="8" />
+    <text x="12" y="20" class="comp-header" fill="#9a3412">Component UserPortalSubsystem</text>
+    <text x="12" y="48" class="comp-body">Property rf60_topicSearch: 28 Themes</text>
+    <text x="12" y="64" class="comp-body">Property r1_swrlDerivation: In-Memory</text>
+    <text x="12" y="80" class="comp-body">Property directPdfLinks: WER Proceedings</text>
+    <text x="12" y="96" class="comp-body">Property semanticExplainer: Active</text>
+    <text x="12" y="112" class="comp-body">Property targetUser: Non-Specialist</text>
+
+    <rect x="120" y="-6" width="12" height="12" class="port" />
+    <text x="80" y="16" class="port-label">Port portalDataIn</text>
+
+    <rect x="-6" y="65" width="12" height="12" class="port" />
+    <text x="10" y="60" class="port-label">Port userEventsIn</text>
+  </g>
+
+  <!-- LINHAS DE CONEXÃO E ROTEAMENTO (StateBridge para Subcomponentes) -->
+  <!-- StateBridge -> GraphRenderer -->
+  <path d="M 735 200 L 735 280 L 175 280 L 175 304" class="edge-dashed" marker-end="url(#arrow-conn)" />
+
+  <!-- StateBridge -> AxiomInspector -->
+  <path d="M 762 200 L 762 265 L 475 265 L 475 304" class="edge-dashed" marker-end="url(#arrow-conn)" />
+
+  <!-- StateBridge -> UserPortalSubsystem -->
+  <path d="M 785 200 L 785 280 L 775 280 L 775 304" class="edge-dashed" marker-end="url(#arrow-conn)" />
+
+  <!-- COMPONENTE 6: UIContainer (Interface Reativa do Usuário) -->
+  <g transform="translate(150, 485)">
+    <rect width="660" height="55" class="comp-box" fill="#f1f5f9" stroke="#0f172a" />
+    <text x="20" y="24" class="comp-header" font-size="12" fill="#0f172a">Component UIContainer (React 18 + Tailwind SPA)</text>
+    <text x="20" y="42" class="comp-body" font-size="9.5">
+      Alternância Fluida com 1-Clique: [Modo Especialista: Árvore + Grafo + Axiomas] ↔ [Modo Usuário: Catálogo WER por Tópicos]
+    </text>
+    <rect x="25" y="-6" width="12" height="12" class="port" fill="#0f172a" />
+    <rect x="330" y="-6" width="12" height="12" class="port" fill="#0f172a" />
+    <rect x="625" y="-6" width="12" height="12" class="port" fill="#0f172a" />
+  </g>
+
+  <path d="M 175 455 L 175 479" class="edge" marker-end="url(#arrow)" />
+  <path d="M 475 455 L 475 479" class="edge" marker-end="url(#arrow)" />
+  <path d="M 775 455 L 775 479" class="edge" marker-end="url(#arrow)" />
+
+  <!-- LEGENDA DA NOTAÇÃO ADL ACME -->
+  <g transform="translate(700, 40)">
+    <rect width="220" height="85" fill="#ffffff" stroke="#cbd5e1" rx="6" />
+    <text x="10" y="16" class="comp-header" font-size="10.5">Legenda da Notação ACME</text>
+    <rect x="12" y="26" width="14" height="10" fill="#ffffff" stroke="#1e40af" stroke-width="1.5" rx="2" />
+    <text x="32" y="35" class="legend-text">Componente</text>
+    <rect x="15" y="43" width="8" height="8" class="port" />
+    <text x="32" y="50" class="legend-text">Porta (Port)</text>
+    <rect x="12" y="58" width="14" height="10" class="conn-box" />
+    <text x="32" y="66" class="legend-text">Conector (Connector)</text>
+    <line x1="12" y1="76" x2="26" y2="76" stroke="#d97706" stroke-width="2" stroke-dasharray="3,2" />
+    <text x="32" y="80" class="legend-text">Vínculo (Attachment / Role)</text>
+  </g>
+</svg>

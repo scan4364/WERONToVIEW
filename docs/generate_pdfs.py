@@ -236,6 +236,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       color: #0f172a !important;
     }}
 
+    /* Imagens e Legendas */
+    img {
+      max-width: 90%;
+      max-height: 480px;
+      height: auto;
+      display: block;
+      margin: 14px auto 4px auto;
+      border-radius: 4px;
+      border: 1px solid #cbd5e1;
+      page-break-inside: avoid;
+    }
+
+    p > em {
+      display: block;
+      text-align: center;
+      font-size: 8.8pt;
+      margin-top: 4px;
+      margin-bottom: 14px;
+      color: #64748b;
+      page-break-inside: avoid;
+    }
+
     /* Autores e Afiliação */
     strong {{
       color: #0f172a;
@@ -351,11 +373,11 @@ def generate_all_pdfs():
             body_html = protect_and_convert_markdown(md_content)
             full_html = HTML_TEMPLATE.replace("{{TITLE}}", title).replace("{{BODY}}", body_html)
 
-            # Criar arquivo temporário HTML
-            with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as tf:
+            # Criar arquivo temporário HTML dentro de DOCS_DIR para resolução de caminhos relativos de imagens
+            temp_html_path = os.path.join(DOCS_DIR, f"_temp_render_{int(time.time()*1000)}.html")
+            with open(temp_html_path, "w", encoding="utf-8") as tf:
                 tf.write(full_html)
-                temp_html_path = tf.name
-                temp_files.append(temp_html_path)
+            temp_files.append(temp_html_path)
 
             file_url = "file:///" + temp_html_path.replace("\\", "/")
             driver.get(file_url)
@@ -376,11 +398,13 @@ def generate_all_pdfs():
             pdf_b64 = driver.print_page(print_options)
             pdf_bytes = base64.b64decode(pdf_b64)
 
-            with open(pdf_path, "wb") as f_out:
-                f_out.write(pdf_bytes)
-
-            size_kb = len(pdf_bytes) / 1024
-            print(f"  -> PDF gerado com sucesso: {os.path.basename(pdf_path)} ({size_kb:.1f} KB)\n")
+            try:
+                with open(pdf_path, "wb") as f_out:
+                    f_out.write(pdf_bytes)
+                size_kb = len(pdf_bytes) / 1024
+                print(f"  -> PDF gerado com sucesso: {os.path.basename(pdf_path)} ({size_kb:.1f} KB)\n")
+            except Exception as fe:
+                print(f"  [AVISO] Não foi possível sobrescrever {os.path.basename(pdf_path)} (provavelmente aberto em visualizador de PDF): {fe}\n")
 
     finally:
         driver.quit()

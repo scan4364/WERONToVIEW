@@ -158,6 +158,31 @@ def convert_md_to_docx(md_path, docx_path):
             i += 1
             continue
 
+        # Imagem (![alt](path))
+        img_match = re.match(r'!\[(.*?)\]\((.*?)\)', line.strip())
+        if img_match:
+            alt_text = img_match.group(1)
+            img_rel_path = img_match.group(2)
+            img_full_path = os.path.normpath(os.path.join(os.path.dirname(md_path), img_rel_path))
+            if os.path.exists(img_full_path):
+                p_img = doc.add_paragraph()
+                p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                p_img.paragraph_format.space_before = Pt(8)
+                p_img.paragraph_format.space_after = Pt(2)
+                run_img = p_img.add_run()
+                run_img.add_picture(img_full_path, width=Inches(5.5))
+                if alt_text:
+                    p_cap = doc.add_paragraph()
+                    p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    p_cap.paragraph_format.space_before = Pt(2)
+                    p_cap.paragraph_format.space_after = Pt(8)
+                    cap_run = p_cap.add_run(alt_text)
+                    cap_run.font.size = Pt(8.5)
+                    cap_run.font.italic = True
+                    cap_run.font.color.rgb = RGBColor(100, 116, 139)
+            i += 1
+            continue
+
         # Cabeçalho 1 (# Título)
         if line.startswith('# '):
             text = line[2:].strip()
