@@ -137,10 +137,35 @@ Como a aplicação é 100% estática e roda no navegador:
 
 ---
 
+---
+
+## 📚 Relatórios Técnicos e Artigo Científico
+
+Toda a fundamentação formal do projeto encontra-se documentada no diretório [`docs/`](docs/):
+
+1. **[Relatório Técnico da Ontologia (Artigo)](docs/1_Relatorio_Tecnico_Ontologia_WER.md):**  
+   *Modelagem e Inferência Semântica no Catálogo de Publicações do WER 2026: Uma Ontologia em OWL 2 DL com Regras SWRL.* Abrange a axiomatização em Lógica de Descrições, Competency Questions, classes definidas, restrições qualificadas, disjunções e as 4 regras SWRL com o motor Drools.
+
+2. **[Relatório Técnico da Arquitetura em ADL ACME](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md):**  
+   *Arquitetura de Software do WerOntoView: Especificação Formal em ADL ACME.* Descreve a arquitetura estática *zero-backend*, com modelagem formal de componentes, portas, conectores, papéis (*roles*), *attachments*, invariantes de qualidade e estratégia de *code-splitting*.
+
+3. **[Documento de Requisitos da Ferramenta (IEEE 830 / ISO 29148)](docs/3_Documento_Requisitos_Ferramenta.md):**  
+   *Especificação de Requisitos de Software (SRS).* Documentação de engenharia de requisitos categorizada (RF-01 a RF-64, incluindo RF-16 a RF-19 e RNF-01 a RNF-08), matriz de rastreabilidade e critérios de homologação.
+
+4. **[Artigo Completo Unificado](docs/4_Artigo_Completo_Unificado_WerOntoView.md):**  
+   *WerOntoView: Engenharia de Requisitos, Modelagem Ontológica OWL 2 / SWRL e Arquitetura Formal em ADL ACME.* Artigo científico completo consolidando ontologia, engenharia de requisitos, arquitetura ACME e avaliação experimental.
+
+---
+
 ## 📂 Estrutura do Projeto
 
 ```text
 WERONTOVIEW/
+├── docs/                                    # Relatórios técnicos e artigo científico
+│   ├── 1_Relatorio_Tecnico_Ontologia_WER.md
+│   ├── 2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md
+│   ├── 3_Documento_Requisitos_Ferramenta.md
+│   └── 4_Artigo_Completo_Unificado_WerOntoView.md
 ├── public/
 │   └── examples/
 │       ├── wer-catalogo-v7-regras-swrl.ttl   # Ontologia de teste do WER 2026 (v7 padrão)

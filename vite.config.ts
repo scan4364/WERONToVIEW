@@ -9,6 +9,17 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'cytoscape-vendor': ['cytoscape'],
+          'n3-vendor': ['n3'],
+          'lucide-vendor': ['lucide-react']
+        }
+      }
+    }
   }
 });
