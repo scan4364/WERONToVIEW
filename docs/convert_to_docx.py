@@ -19,8 +19,44 @@ def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
     tcMar = parse_xml(f'<w:tcMar {nsdecls("w")}><w:top w:w="{top}" w:type="dxa"/><w:bottom w:w="{bottom}" w:type="dxa"/><w:left w:w="{left}" w:type="dxa"/><w:right w:w="{right}" w:type="dxa"/></w:tcMar>')
     tcPr.append(tcMar)
 
+def latex_to_unicode(text):
+    """Converte comandos comuns de LaTeX em símbolos legíveis Unicode."""
+    replacements = [
+        (r'\\sqcap', ' ⊓ '),
+        (r'\\sqcup', ' ⊔ '),
+        (r'\\equiv', ' ≡ '),
+        (r'\\ge', ' ≥ '),
+        (r'\\le', ' ≤ '),
+        (r'\\neg', ' ¬'),
+        (r'\\to', ' → '),
+        (r'\\rightarrow', ' → '),
+        (r'\\land', ' ∧ '),
+        (r'\\lor', ' ∨ '),
+        (r'\\exists', ' ∃'),
+        (r'\\forall', ' ∀'),
+        (r'\\sqsupseteq', ' ⊒ '),
+        (r'\\sqsubseteq', ' ⊑ '),
+        (r'\\circ', ' ∘ '),
+        (r'\\times', ' × '),
+        (r'\\mathcal\{SROIQ\}\^\{\(D\)\}', 'SROIQ(D)'),
+        (r'\\mathcal\{ALCOIN\}\(D\)', 'ALCOIN(D)'),
+        (r'\\mathcal\{([A-Za-z]+)\}', r'\1'),
+        (r'\\text\{([^}]+)\}', r'\1'),
+        (r'\\begin\{aligned\}', ''),
+        (r'\\end\{aligned\}', ''),
+        (r'\\\\', '\n'),
+        (r'\\;', ' '),
+        (r'\\,', ' '),
+        (r'\$', ''),
+    ]
+    res = text
+    for pattern, repl in replacements:
+        res = re.sub(pattern, repl, res)
+    return res
+
 def add_formatted_runs(paragraph, text, base_font_size=Pt(10.5), is_italic=False, is_bold=False, font_name="Calibri", font_color=RGBColor(51, 51, 51)):
-    """Adiciona texto ao parágrafo interpretando **negrito**, *itálico* e `código`."""
+    """Adiciona texto ao parágrafo interpretando **negrito**, *itálico*, `código` e convertendo fórmulas LaTeX."""
+    text = latex_to_unicode(text)
     # Expressão regular para tokens: **bold**, *italic*, `code`, ou texto normal
     token_pattern = re.compile(r'(\*\*.*?\*\*|\*.*?\*|`.*?`|[^\*`]+)')
     tokens = token_pattern.findall(text)
@@ -256,8 +292,11 @@ def convert_md_to_docx(md_path, docx_path):
         add_formatted_runs(p, line, base_font_size=Pt(10.5), font_name="Calibri", font_color=RGBColor(51, 51, 51))
         i += 1
 
-    doc.save(docx_path)
-    print(f"Salvo com sucesso: {docx_path}")
+    try:
+        doc.save(docx_path)
+        print(f"Salvo com sucesso: {docx_path}")
+    except PermissionError:
+        print(f"[AVISO] Não foi possível salvar {docx_path} porque o arquivo está aberto no Word pelo usuário.")
 
 if __name__ == '__main__':
     docs_dir = os.path.dirname(os.path.abspath(__file__))

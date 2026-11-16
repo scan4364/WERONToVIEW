@@ -139,25 +139,25 @@ Como a aplicação é 100% estática e roda no navegador:
 
 ---
 
-## 📚 Relatórios Técnicos e Artigo Científico (Markdown & Word .docx)
+## 📚 Relatórios Técnicos e Artigo Científico (PDF, Word .docx & Markdown)
 
-Toda a fundamentação formal do projeto encontra-se documentada no diretório [`docs/`](docs/), disponível nos formatos **Markdown (`.md`)** e **Microsoft Word (`.docx`)**:
+Toda a fundamentação formal do projeto encontra-se documentada no diretório [`docs/`](docs/), disponível nos formatos **PDF diagramado para publicação com fórmulas matemáticas (LaTeX/MathJax SVG)**, **Microsoft Word (`.docx`)** e **Markdown (`.md`)**:
 
 1. **Relatório Técnico da Ontologia (Artigo):**  
    *Modelagem e Inferência Semântica no Catálogo de Publicações do WER 2026: Uma Ontologia em OWL 2 DL com Regras SWRL.*  
-   📄 [Versão Markdown](docs/1_Relatorio_Tecnico_Ontologia_WER.md) | 📘 [Versão Word (.docx)](docs/1_Relatorio_Tecnico_Ontologia_WER.docx)
+   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/1_Relatorio_Tecnico_Ontologia_WER.pdf) | 📘 [Versão Word (.docx)](docs/1_Relatorio_Tecnico_Ontologia_WER.docx) | 📄 [Versão Markdown](docs/1_Relatorio_Tecnico_Ontologia_WER.md)
 
 2. **Relatório Técnico da Arquitetura em ADL ACME:**  
    *Arquitetura de Software do WerOntoView: Especificação Formal em ADL ACME.*  
-   📄 [Versão Markdown](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md) | 📘 [Versão Word (.docx)](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.docx)
+   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.pdf) | 📘 [Versão Word (.docx)](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.docx) | 📄 [Versão Markdown](docs/2_Relatorio_Tecnico_Arquitetura_ADL_ACME.md)
 
 3. **Documento de Requisitos da Ferramenta (IEEE 830 / ISO 29148):**  
    *Especificação de Requisitos de Software (SRS).*  
-   📄 [Versão Markdown](docs/3_Documento_Requisitos_Ferramenta.md) | 📘 [Versão Word (.docx)](docs/3_Documento_Requisitos_Ferramenta.docx)
+   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/3_Documento_Requisitos_Ferramenta.pdf) | 📘 [Versão Word (.docx)](docs/3_Documento_Requisitos_Ferramenta.docx) | 📄 [Versão Markdown](docs/3_Documento_Requisitos_Ferramenta.md)
 
 4. **Artigo Completo Unificado:**  
    *WerOntoView: Engenharia de Requisitos, Modelagem Ontológica OWL 2 / SWRL e Arquitetura Formal em ADL ACME.*  
-   📄 [Versão Markdown](docs/4_Artigo_Completo_Unificado_WerOntoView.md) | 📘 [Versão Word (.docx)](docs/4_Artigo_Completo_Unificado_WerOntoView.docx)
+   📕 [Versão PDF (Fórmulas em Alta Definição)](docs/4_Artigo_Completo_Unificado_WerOntoView.pdf) | 📘 [Versão Word (.docx)](docs/4_Artigo_Completo_Unificado_WerOntoView.docx) | 📄 [Versão Markdown](docs/4_Artigo_Completo_Unificado_WerOntoView.md)
 
 ---
 
